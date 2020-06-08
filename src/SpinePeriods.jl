@@ -27,7 +27,6 @@ using URIParser
 
 include("preprocess_data_structure.jl")
 include("representative_periods_model.jl")
-include("variables.jl")
 include("postprocess_results.jl")
 
 function run_spineperiods(
