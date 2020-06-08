@@ -4,7 +4,7 @@ A package to run the representative days model described in:
 
 K. Poncelet, H. Höschle, E. Delarue, A. Virag and W. D’haeseleer, "Selecting Representative Days for Capturing the Implications of Integrating Intermittent Renewables in Generation Expansion Planning Problems”, in IEEE Transactions on Power Systems, vol. 32, no. 3, pp. 1936-1948, May 2017.
 
-and available [here](https://iea-etsap.org/projects/Timeslicetool V1.zip)
+and available [here](https://iea-etsap.org/projects/Timeslicetool%20V1.zip)
 
 ## Compatibility
 
