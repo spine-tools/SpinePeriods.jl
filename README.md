@@ -4,7 +4,7 @@ A package to run the representative days model described in:
 
 K. Poncelet, H. Höschle, E. Delarue, A. Virag and W. D’haeseleer, "Selecting Representative Days for Capturing the Implications of Integrating Intermittent Renewables in Generation Expansion Planning Problems”, in IEEE Transactions on Power Systems, vol. 32, no. 3, pp. 1936-1948, May 2017.
 
-and available [here](https://iea-etsap.org/projects/Timeslicetool%V1.zip)
+and available [here](https://iea-etsap.org/projects/Timeslicetool V1.zip)
 
 ## Compatibility
 
@@ -86,3 +86,12 @@ D:\Workspace\Spine\Spinetoolbox\projects\Ireland_A1B1_2\.spinetoolbox\items\time
 
 ### Next Steps
  - Include investment variables and run and investment model over a set of representative days
+
+
+## Reporting Issues and Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## License
+
+SpineOpt is licensed under GNU Lesser General Public License version 3.0 or later.
