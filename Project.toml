@@ -1,0 +1,15 @@
+name = "SpinePeriods"
+uuid = "163584a9-52e1-4a4e-9262-a8c2d5456af4"
+authors = ["Jody Dillon <jody.dillon@energyreform.ie>", "Manuel Marin <manuelma@kth.se>"]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+SpineInterface = "0cda1612-498a-11e9-3c92-77fa82595a4f"
+SpineOpt = "b74cbf36-17f7-11e9-3430-fdc535b30a00"
+URIParser = "30578b45-9adc-5946-b283-645ec420af67"
+
+[compat]
+JuMP = "0.21.2"
+julia = "^1.2"
