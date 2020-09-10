@@ -23,7 +23,7 @@ function preprocess_data_structure()
     window__static_slice = generate_distributions()
 end
 
-""" 
+"""
     generate_blocks()
 
 The representative periods model decomposes a distribution into a number of operatig point blocks
@@ -165,7 +165,7 @@ function generate_distributions()
                 (ts_vals[r, ss_ts[t]] < ts_min[r]) && (ts_min[r] = ts_vals[r, ss_ts[t]])
             end
         end
-        SpinePeriods.roll_temporal_structure() || break
+        SpineOpt.roll_temporal_structure() || break
         i_win += 1
     end
 

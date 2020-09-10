@@ -36,7 +36,7 @@ function run_spineperiods(
     @info "reading database"
     using_spinedb(url_in)
     @info "processing SpinePeriods temporal structure"
-    SpinePeriods.generate_temporal_structure()
+    SpineOpt.generate_temporal_structure()
     @info "preprocessing data structure"
     window__static_slice = preprocess_data_structure()
     @info "Initializing model..."
@@ -57,8 +57,8 @@ function run_spineperiods(
     add_constraint_total_weight!(m)
 
     optimize!(m)
-    if termination_status(m) == MOI.OPTIMAL
-        @info "Model sloved. Termination status: $(termination_status(m))"
+    if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
+        @info "Model solved. Termination status: $(termination_status(m))"
         postprocess_results!(m, url_in, window__static_slice)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))"
