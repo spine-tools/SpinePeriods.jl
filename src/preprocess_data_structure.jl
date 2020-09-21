@@ -60,6 +60,7 @@ function generate_resources()
         r = Object(Symbol(u.name))
         add_object!(resource, r)
         # copy the timeseries data to a new unified resource object
+        # Normalise by the maximum value
         resource.parameter_values[r] = Dict()
         resource.parameter_values[r][:resource_availability] = unit.parameter_values[u][:unit_availability_factor]
         # each resource time series can have a weight defined by representative_period_weight(unit=u, representative_period=rp). It should have a default of 1, but we check just in case
@@ -123,7 +124,6 @@ function generate_distributions()
         static_slice = $static_slice
     end
 
-    ts_vals = Dict()
     ts_vals_window = Dict()
 
     res_dist_window = Dict()
@@ -163,6 +163,9 @@ function generate_distributions()
                 (ts_vals[r, ss_ts[t]] == nothing) && (ts_vals[r, ss_ts[t]] = 0)
                 (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
                 (ts_vals[r, ss_ts[t]] < ts_min[r]) && (ts_min[r] = ts_vals[r, ss_ts[t]])
+
+                # Also seperate values by resource, window and time slice
+                ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end
         end
         SpineOpt.roll_temporal_structure() || break
@@ -185,6 +188,34 @@ function generate_distributions()
         end
     end
 
+    # r = first(resource())
+    # w = first(window())
+    # t = first(window__static_slice[w])
+    # @show ts_vals_window[r,w,t]
+
+    # Create relationship classes
+    # Create resource window static slice relationship class
+    # Allows indexing resource values by window and time slice
+    res_wdw_parameter_values = Dict(
+        (r, w, t) => Dict(
+            :resource_availability_window_static_slice =>
+            SpineInterface.ScalarParameterValue(ts_vals_window[r,w,t])
+        )
+        for r in resource() for w in window() for t in window__static_slice[w]
+    )
+
+
+    resource__window__static_slice = RelationshipClass(
+        :resource_availabilty__window__static_slice,
+        [:resource, :window, :t],
+        [
+            (resource=r, window=w, t=t)
+            for r in resource() for w in window() for t in window__static_slice[w]
+        ],
+        res_wdw_parameter_values
+    )
+
+    # Define resource__block relationship class
     res_blk_parameter_values = Dict(
         (r, b) => Dict(:resource_distribution => SpineInterface.ScalarParameterValue(res_dist_horizon[r][parse(Int,string(b.name)[2:end])]))
         for r in resource() for b in block()
@@ -197,6 +228,7 @@ function generate_distributions()
         res_blk_parameter_values
     )
 
+    # Define resource_distribution_window
     res_blk_wdw_parameter_values = Dict(
         (r, b, w) => Dict(:resource_distribution_window => SpineInterface.ScalarParameterValue(res_dist_window[r, w][parse(Int,string(b.name)[2:end])]))
         for r in resource() for b in block() for w in window()
@@ -211,14 +243,23 @@ function generate_distributions()
 
     resource_distribution = Parameter(:resource_distribution, [resource__block])
     resource_distribution_window = Parameter(:resource_distribution_window, [resource__block__window])
+    resource_availability_window_static_slice = Parameter(
+        :resource_availability_window_static_slice,
+        [resource__window__static_slice]
+    )
 
     @eval begin
         resource__block = $resource__block
         resource__block__window = $resource__block__window
         resource_distribution = $resource_distribution
         resource_distribution_window = $resource_distribution_window
+        resource__window__static_slice =
+            $resource__window__static_slice
+        resource_availability_window_static_slice =
+            $resource_availability_window_static_slice
+        window__static_slice = $window__static_slice # ???
     end
-    window__static_slice
+
 end
 
 function write_ts_data(window__static_slice, ts_vals)

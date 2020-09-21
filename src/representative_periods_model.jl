@@ -106,21 +106,24 @@ end
 Minimize the total error between target and representative time series.
 """
 function set_ordering_objective!(m::Model)
-    representative_period_weight(resource=r)
-    # TODO:
-    # I would like to write an objective function something along the lines of this:
+    # representative_period_weight(resource=r)
+    ts_vals = resource_availability_window_static_slice
     @objective(
         m,
         Min,
         + sum(
             + representative_period_weight(resource=r) *
                 chronology[w1,w2] *
-                    sum(
-                        abs(ts_vals[r,w1,t] - ts_vals[r,w2,t])
-                        for t in time_slice(window=w1)
-                        # or w2, should be the same!
-                    )
-            for w1 in window(), w2 in window(), r in resource()
+                    # sum(
+                        abs(
+                            ts_vals(resource=r,window=w1,t=t)
+                            - ts_vals(resource=r,window=w2,t=t)
+                        )
+                        # for (r,w1,t) in window__static_slice[w1]
+                    # )
+            for (r, w1, t) in resource__window__static_slice()
+            for w2 in window()
+            # for w1 in window(), w2 in window(), r in resource()
         )
     )
 end
@@ -242,7 +245,7 @@ function add_constraint_link_weight_and_chronology!(m::Model)
             m,
             weight[w2]
             ==
-            sum(chronology[w1,w2] for w2 in window())
+            sum(chronology[w1,w2] for w1 in window())
         )
     end
 end
