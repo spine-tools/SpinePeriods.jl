@@ -34,7 +34,7 @@ function run_spineperiods(
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "reading database"
-    using_spinedb(url_in)
+    using_spinedb(url_in; upgrade=true)
     @info "processing SpinePeriods temporal structure"
     SpineOpt.generate_temporal_structure()
     @info "preprocessing data structure"
@@ -75,7 +75,7 @@ function run_spineperiods_ordering(
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "reading database"
-    using_spinedb(url_in)
+    using_spinedb(url_in; upgrade=true)
     @info "processing SpinePeriods temporal structure"
     SpineOpt.generate_temporal_structure()
     @info "preprocessing data structure"

@@ -197,20 +197,20 @@ function generate_distributions()
     # Create resource window static slice relationship class
     # Allows indexing resource values by window and time slice
     res_wdw_parameter_values = Dict(
-        (r, w, t) => Dict(
+        (r, w, ss) => Dict(
             :resource_availability_window_static_slice =>
-            SpineInterface.ScalarParameterValue(ts_vals_window[r,w,t])
+            SpineInterface.ScalarParameterValue(ts_vals_window[r,w,ss])
         )
-        for r in resource() for w in window() for t in window__static_slice[w]
+        for r in resource() for w in window() for ss in window__static_slice[w]
     )
 
 
     resource__window__static_slice = RelationshipClass(
         :resource_availabilty__window__static_slice,
-        [:resource, :window, :t],
+        [:resource, :window, :ss],
         [
-            (resource=r, window=w, t=t)
-            for r in resource() for w in window() for t in window__static_slice[w]
+            (resource=r, window=w, ss=ss)
+            for r in resource() for w in window() for ss in window__static_slice[w]
         ],
         res_wdw_parameter_values
     )

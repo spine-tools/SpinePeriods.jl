@@ -106,24 +106,25 @@ end
 Minimize the total error between target and representative time series.
 """
 function set_ordering_objective!(m::Model)
-    # representative_period_weight(resource=r)
     ts_vals = resource_availability_window_static_slice
+    @fetch chronology = m.ext[:variables]
     @objective(
         m,
         Min,
         + sum(
             + representative_period_weight(resource=r) *
-                chronology[w1,w2] *
-                    # sum(
-                        abs(
-                            ts_vals(resource=r,window=w1,t=t)
-                            - ts_vals(resource=r,window=w2,t=t)
-                        )
-                        # for (r,w1,t) in window__static_slice[w1]
-                    # )
-            for (r, w1, t) in resource__window__static_slice()
-            for w2 in window()
-            # for w1 in window(), w2 in window(), r in resource()
+            chronology[w1,w2] *
+                sum(
+                    abs(
+                        + ts_vals(resource=r, window=w1, ss1=ss1)
+                        - ts_vals(resource=r, window=w2, ss2=ss2)
+                    )
+                    for (ss1,ss2) in zip(
+                        resource__window__static_slice(resource=r, window=w1),
+                        resource__window__static_slice(resource=r, window=w2),
+                    )
+                )
+            for r in resource(), w1 in window(), w2 in window()
         )
     )
 end
