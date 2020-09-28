@@ -1,4 +1,5 @@
 using SpinePeriods
+using SpineInterface
 using Cbc
 using JuMP
 
@@ -16,3 +17,34 @@ m = SpinePeriods.run_spineperiods_ordering(
         "seconds" => 60
     )
 )
+
+# Assert right number of days selected according to chronology
+chron = Dict((w1,w2) => value(m.ext[:variables][:chronology][w1,w2]) for w1 in SpinePeriods.window(), w2 in SpinePeriods.window())
+vecChron = collect(chron)
+idx = findall(x -> last(x) > 0, collect(chron))
+vecChron[idx]
+rp = first(SpineInterface.representative_period())
+@assert length(unique(last.(first.(vecChron[idx])))) ≈ SpineInterface.representative_periods(representative_period=rp)
+
+# Assert that the weights add up to 365
+weight = Dict(w => value(m.ext[:variables][:weight][w]) for w in SpinePeriods.window())
+@assert sum(last.(collect(weight))) == length(SpinePeriods.window())
+
+# realIdx =  collect(SpineInterface.indices(SpinePeriods.resource_availability_window_static_slice))
+# resource, window, ss = first(realIdx)
+#
+# r=first(SpinePeriods.resource())
+# w=first(SpinePeriods.window())
+# sstest = first(SpinePeriods.resource__window__static_slice(resource=r, window=w))
+#
+# @show r === resource
+# @show w === window
+# @show sstest === ss
+#
+# for (ss1,ss2) in zip(
+#     SpinePeriods.resource__window__static_slice(resource=r, window=w),
+#     SpinePeriods.resource__window__static_slice(resource=r, window=w),
+# )
+#     @show ss1
+#     @show ss2
+# end

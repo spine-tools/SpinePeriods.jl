@@ -82,6 +82,10 @@ function postprocess_results!(m::Model, db_url, window__static_slice)
 
 end
 
+function postprocess_ordering_results!(m::Model, db_url)
+    error()
+end
+
 function date_time_to_db(datetime_string)
     val=Dict()
     val["type"] = "date_time"

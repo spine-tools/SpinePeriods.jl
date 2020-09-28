@@ -53,10 +53,10 @@ function create_ordering_variables!(m)
 
     var = m.ext[:variables][:selected] = Dict{Object, JuMP.VariableRef}()
     for w in window()
-            var[w] = @variable(m,
-                    base_name="selected[$w]",
-                    binary=true
-            )
+        var[w] = @variable(m,
+                base_name="selected[$w]",
+                binary=true
+        )
     end
 
     var = m.ext[:variables][:weight] = Dict{Object, JuMP.VariableRef}()
@@ -108,6 +108,7 @@ Minimize the total error between target and representative time series.
 function set_ordering_objective!(m::Model)
     ts_vals = resource_availability_window_static_slice
     @fetch chronology = m.ext[:variables]
+
     @objective(
         m,
         Min,
@@ -116,8 +117,8 @@ function set_ordering_objective!(m::Model)
             chronology[w1,w2] *
                 sum(
                     abs(
-                        + ts_vals(resource=r, window=w1, ss1=ss1)
-                        - ts_vals(resource=r, window=w2, ss2=ss2)
+                        + ts_vals(resource=r, window=w1, ss=ss1)
+                        - ts_vals(resource=r, window=w2, ss=ss2)
                     )
                     for (ss1,ss2) in zip(
                         resource__window__static_slice(resource=r, window=w1),
@@ -262,6 +263,6 @@ function add_constraint_total_weight!(m::Model)
                 for w in window()
             )
         ==
-        + representative_periods(representative_period=rp) * length(block())
+        + length(window())
     )
 end

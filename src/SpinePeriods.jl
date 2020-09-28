@@ -63,12 +63,16 @@ function run_spineperiods(
     else
         @info "Unable to find solution (reason: $(termination_status(m)))"
     end
+
+    return m
 end
 
 """
     run_spineperiods_ordering(url_in, optimizer)
 
-Solves an optimisation problem which selects and orders representative periods. Definitely works when choosing days in a year, but deviations from that (e.g. choosing days from multiple years or hours from a year) will likely fail due to the problem size.
+Solves an optimisation problem which selects and orders representative periods.
+
+Definitely works when choosing days in a year, but deviations from that (e.g. choosing days from multiple years or hours from a year) will likely fail due to the problem size.
 """
 function run_spineperiods_ordering(
         url_in::String;
@@ -91,16 +95,22 @@ function run_spineperiods_ordering(
 
     create_ordering_variables!(m)
     add_constraint_enforce_period_mapping!(m)
+    # line 390, seems fine
     add_constraint_enforce_chronology_less_than_selected!(m)
+    # line 398, seems fine
     add_constraint_selected_periods!(m)
+    # line 418, should be fine
     add_constraint_link_weight_and_chronology!(m)
+    # line 431, seems fine
     add_constraint_total_weight!(m)
+    # line 449, should be fine
+    # add_constraint_single_weight!(m) # Not included in my formulation
     set_ordering_objective!(m)
 
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))"
-        postprocess_results!(m, url_in, window__static_slice)
+        postprocess_ordering_results!(m, url_in)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))"
     end
