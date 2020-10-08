@@ -82,8 +82,57 @@ function postprocess_results!(m::Model, db_url, window__static_slice)
 
 end
 
-function postprocess_ordering_results!(m::Model, db_url)
-    error()
+function postprocess_ordering_results!(m::Model, db_url, window__static_slice)
+    chron = Dict(
+        (w1,w2) => value(m.ext[:variables][:chronology][w1,w2])
+        for w1 in SpinePeriods.window(), w2 in SpinePeriods.window()
+    )
+    nonZero = findall(x -> x == 1, chron)
+    chronMap = Dict(w[1] => w[2] for w in nonZero)
+    jsonDict = Dict(
+        "type" => "map",
+        "index_type" => "date_time",
+        "data" => []
+    )
+    for w1 in window()
+        w2 = chronMap[w1]
+        for (ss1,ss2) in zip(
+                window__static_slice[w1],
+                window__static_slice[w2],
+            )
+            ss1_start = string(rstrip(split(split(string(ss1.name), ">")[1], "~")[1]))
+            ss1_end = string(lstrip(split(string(ss1.name), ">")[2]))
+            ss2_start = string(rstrip(split(split(string(ss2.name), ">")[1], "~")[1]))
+            ss2_end = string(rstrip(split(split(string(ss2.name), ">")[1], "~")[1]))
+
+            push!(
+                jsonDict["data"],
+                [ss1_start, Dict(
+                    "type" => "map",
+                    "index_type" => "date_time",
+                    "data" => [
+                        [ss1_end, Dict(
+                            "type" => "map",
+                            "index_type" => "str",
+                            "data" => hcat(
+                                [
+                                    "start",
+                                    ss2_start
+                                ],
+                                [
+                                    "end",
+                                    ss2_end
+                                ]
+                            )
+                        )]
+                    ]
+                )]
+            )
+        end
+    end
+    open("timeslice_map.json","w") do f
+        JSON.print(f, jsonDict)
+    end
 end
 
 function date_time_to_db(datetime_string)

@@ -10,7 +10,7 @@ rm(joinpath(@__DIR__, "Belgium_2017_finder_rps.sqlite"), force=true)
 sqlite_file = joinpath(@__DIR__, "Belgium_2017_finder.sqlite")
 
 # Run
-m = SpinePeriods.run_spineperiods_ordering(
+m, url_in, window__static_slice = SpinePeriods.run_spineperiods_ordering(
     "sqlite:///$(sqlite_file)",
     with_optimizer=optimizer_with_attributes(
         Cbc.Optimizer, "logLevel" => 1, "ratioGap" => 0.01,
@@ -29,22 +29,3 @@ rp = first(SpineInterface.representative_period())
 # Assert that the weights add up to 365
 weight = Dict(w => value(m.ext[:variables][:weight][w]) for w in SpinePeriods.window())
 @assert sum(last.(collect(weight))) == length(SpinePeriods.window())
-
-# realIdx =  collect(SpineInterface.indices(SpinePeriods.resource_availability_window_static_slice))
-# resource, window, ss = first(realIdx)
-#
-# r=first(SpinePeriods.resource())
-# w=first(SpinePeriods.window())
-# sstest = first(SpinePeriods.resource__window__static_slice(resource=r, window=w))
-#
-# @show r === resource
-# @show w === window
-# @show sstest === ss
-#
-# for (ss1,ss2) in zip(
-#     SpinePeriods.resource__window__static_slice(resource=r, window=w),
-#     SpinePeriods.resource__window__static_slice(resource=r, window=w),
-# )
-#     @show ss1
-#     @show ss2
-# end

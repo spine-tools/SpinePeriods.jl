@@ -259,7 +259,6 @@ function generate_distributions()
             $resource_availability_window_static_slice
         window__static_slice = $window__static_slice # ???
     end
-
 end
 
 function write_ts_data(window__static_slice, ts_vals)

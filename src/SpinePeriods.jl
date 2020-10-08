@@ -24,6 +24,7 @@ using SpineInterface
 using JuMP
 using Dates
 using URIParser
+using JSON
 
 include("preprocess_data_structure.jl")
 include("representative_periods_model.jl")
@@ -110,12 +111,12 @@ function run_spineperiods_ordering(
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))"
-        postprocess_ordering_results!(m, url_in)
+        postprocess_ordering_results!(m, url_in, window__static_slice)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))"
     end
 
-    return m
+    return m, url_in, window__static_slice
 end
 
 end  # module
