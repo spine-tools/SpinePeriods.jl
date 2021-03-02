@@ -95,7 +95,13 @@ function postprocess_ordering_results!(m::Model, db_url, window__static_slice)
         "data" => []
     )
     for w1 in window()
+        ss1 = window__static_slice[w1][1]
+        ss1_start = string(rstrip(split(split(string(ss1.name), ">")[1], "~")[1]))
         w2 = chronMap[w1]
+        ss2 = Symbol("$w2")
+        ### create temporal_block w2; should this inherit all the nodes associated with original nodes...?
+        ### create temporal_block group of all w2'struct
+        ### create parameter ordering_periods DateTime -> temporal_block
         for (ss1,ss2) in zip(
                 window__static_slice[w1],
                 window__static_slice[w2],

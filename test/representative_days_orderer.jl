@@ -2,6 +2,7 @@ using SpinePeriods
 using SpineInterface
 using Cbc
 using JuMP
+using SpineOpt
 
 # Remove output database if necessary
 rm(joinpath(@__DIR__, "Belgium_2017_finder_rps.sqlite"), force=true)

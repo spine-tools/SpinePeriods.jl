@@ -17,10 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #############################################################################
 
-function preprocess_data_structure()
+function preprocess_data_structure(m)
     generate_blocks()
     generate_resources()
-    window__static_slice = generate_distributions()
+    window__static_slice = generate_distributions(m)
 end
 
 """
@@ -111,7 +111,7 @@ end
 Generate the distribution for each time series as defined by:
 - Number of operating point segments (blocks):
 """
-function generate_distributions()
+function generate_distributions(m::Model)
 
     rp=first(representative_period())
     n_periods = representative_periods(representative_period=rp)
@@ -137,7 +137,7 @@ function generate_distributions()
 
     for r in resource()
         res_dist_horizon[r] = zeros(size(block(),1))
-        ts_max[r] = resource_availability(resource=r, t=first(time_slice()))
+        ts_max[r] = resource_availability(resource=r, t=first(SpineOpt.time_slice(m)))
         ts_min[r] = ts_max[r]
     end
 
@@ -149,7 +149,7 @@ function generate_distributions()
 
         window__static_slice[w] = []
 
-        for t in time_slice()
+        for t in SpineOpt.time_slice(m)
             ss = Object(Symbol(string(t)))
             add_object!(static_slice, ss)
             push!(window__static_slice[w], ss)
@@ -158,7 +158,7 @@ function generate_distributions()
 
         for r in resource()
             res_dist_window[r, w] = zeros(length(block()))
-            for t in time_slice()
+            for t in SpineOpt.time_slice(m)
                 ts_vals[r, ss_ts[t]] = resource_availability(resource=r, t=t)
                 (ts_vals[r, ss_ts[t]] == nothing) && (ts_vals[r, ss_ts[t]] = 0)
                 (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
@@ -168,7 +168,7 @@ function generate_distributions()
                 ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end
         end
-        SpineOpt.roll_temporal_structure() || break
+        SpineOpt.roll_temporal_structure!(m) || break
         i_win += 1
     end
 
