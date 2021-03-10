@@ -1,5 +1,6 @@
 function run_spineperiods(
-        url_in::String;
+        url_in::String,
+        url_in_out::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "reading database"

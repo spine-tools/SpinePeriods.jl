@@ -6,7 +6,8 @@ Solves an optimisation problem which selects and orders representative periods.
 Definitely works when choosing days in a year, but deviations from that (e.g. choosing days from multiple years or hours from a year) will likely fail due to the problem size.
 """
 function run_spineperiods_ordering(
-        url_in::String;
+        url_in::String,
+        url_out::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "reading database"
@@ -43,10 +44,10 @@ function run_spineperiods_ordering(
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))"
-        postprocess_ordering_results!(m, url_in, window__static_slice)
+        order = postprocess_ordering_results!(m, url_in, url_out, window__static_slice)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))"
     end
 
-    return m, url_in, window__static_slice
+    return m, url_in, window__static_slice, order
 end
