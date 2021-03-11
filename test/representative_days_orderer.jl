@@ -11,8 +11,9 @@ rm(joinpath(@__DIR__, "Belgium_2017_finder_rps.sqlite"), force=true)
 sqlite_file = joinpath(@__DIR__, "Belgium_2017_finder.sqlite")
 
 # Run
-m, url_in, window__static_slice = SpinePeriods.run_spineperiods_ordering(
+m, url_in, window__static_slice, order = SpinePeriods.run_spineperiods_ordering(
     "sqlite:///$(sqlite_file)",
+    "sqlite:///$(sqlite_file)_rep",
     with_optimizer=optimizer_with_attributes(
         Cbc.Optimizer, "logLevel" => 1, "ratioGap" => 0.01,
         "seconds" => 60
