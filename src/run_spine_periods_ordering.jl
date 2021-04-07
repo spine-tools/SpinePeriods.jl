@@ -10,15 +10,16 @@ function run_spine_periods_ordering(
     )
     @info "Reading database..."
     using_spinedb(url_in; upgrade=true)
+    
     @info "Processing SpinePeriods temporal structure..."
     m = Model(with_optimizer)
     m.ext[:instance] = model()[1]
     SpineOpt.generate_temporal_structure!(m)
+    
     @info "Preprocessing data structure..."
     window__static_slice = preprocess_data_structure(m)
+    
     @info "Initializing model..."
-
-
     m.ext[:variables] = Dict{Symbol,Dict}()
     m.ext[:variables_lb] = Dict{Symbol,Any}()
     m.ext[:variables_ub] = Dict{Symbol,Any}()

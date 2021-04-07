@@ -18,35 +18,23 @@
 #############################################################################
 
 
-function postprocess_results!(m::Model, db_url, window__static_slice)
+function postprocess_results!(m::Model, db_url, url_out, window__static_slice)
     @fetch selected, weight = m.ext[:variables]
 
     objects = []
     object_parameters = []
     object_parameter_values = []
 
-    push!(object_parameters, ("temporal_block", "weight"))
+    # push!(object_parameters, ("temporal_block", "weight"))
 
     db_uri = URI(db_url)
     db_path = db_uri.path[2:length(db_uri.path)]
-    new_db_path_root = string(db_path[1:findlast(isequal('.'), db_path) - 1], "_rps")
-    path_ext = ".sqlite"
-    if isfile(string(new_db_path_root, path_ext))
-        i = 1
-        while isfile(string(new_db_path_root, "_", i, path_ext))
-            i = i + 1
-        end
-        new_db_path = string(new_db_path_root, "_", i, path_ext)
-    else
-        new_db_path = string(new_db_path_root, path_ext)
-    end
+    url_out_uri = URI(url_out)
+    url_out_path = url_out_uri.path[2:length(url_out_uri.path)]
+    cp(db_path, url_out_path,force=true)
+    @info "New database copied to $(url_out_path)"
 
-    cp(db_path, new_db_path)
-    new_db_url=string("sqlite:///", new_db_path)
-
-    @info "New database copied to $(new_db_path)..."
-
-    db_map=db_api.DiffDatabaseMapping(new_db_url; upgrade=true)
+    db_map=db_api.DiffDatabaseMapping(url_out; upgrade=true)
 
     for w in window()
         if JuMP.value(selected[w]) == 1
@@ -84,10 +72,13 @@ end
 
 function postprocess_ordering_results!(m::Model, db_url, url_out, window__static_slice)
     @fetch selected, weight = m.ext[:variables]
+    
     objects = []
     object_parameters = []
     object_parameter_values = []
+    
     #this should be in the template: push!(object_parameters, ("temporal_block", "weight"))
+
     db_uri = URI(db_url)
     db_path = db_uri.path[2:length(db_uri.path)]
     url_out_uri = URI(url_out)
@@ -105,6 +96,7 @@ function postprocess_ordering_results!(m::Model, db_url, url_out, window__static
     days=[]
     object_groups = []
     push!(objects, ("temporal_block", "all_representative_days"))
+    
     for w in window()
         if JuMP.value(selected[w]) == 1
             tb_name = string("rp_", w)
@@ -127,6 +119,7 @@ function postprocess_ordering_results!(m::Model, db_url, url_out, window__static
         ss2 = string("rp_", w2)
         push!(days,[ss1_start,ss2])
     end #for w in window
+
     ordering_parameter= map_to_db(days)
     push!(object_parameters, ("temporal_block", "representative_periods_mapping"))
     push!(object_parameter_values, ("temporal_block", string(temporal_block()[1]),"representative_periods_mapping",ordering_parameter))

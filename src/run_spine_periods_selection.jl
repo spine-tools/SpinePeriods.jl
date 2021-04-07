@@ -7,17 +7,20 @@ Definitely works when choosing days in a year, but deviations from that (e.g. ch
 """
 function run_spine_periods_selection(
         url_in::String,
-        url_in_out::String;
+        url_out::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "Reading database..."
     using_spinedb(url_in; upgrade=true)
+
     @info "Processing SpinePeriods temporal structure..."
     m = Model(with_optimizer)
     m.ext[:instance] = model()[1]
     SpineOpt.generate_temporal_structure!(m)
+    
     @info "Preprocessing data structure..."
     window__static_slice = preprocess_data_structure(m)
+    
     @info "Initializing model..."
     m = Model(with_optimizer)
 
@@ -38,7 +41,7 @@ function run_spine_periods_selection(
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))."
-        postprocess_results!(m, url_in, window__static_slice)
+        postprocess_results!(m, url_in, url_out, window__static_slice)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))."
     end
