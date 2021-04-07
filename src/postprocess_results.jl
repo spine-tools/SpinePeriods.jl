@@ -40,8 +40,8 @@ function postprocess_results!(m::Model, db_url, url_out, window__static_slice)
         if JuMP.value(selected[w]) == 1
             tb_name = string("rp_", w)
 
-            t_start = date_time_to_db(split(string(first(window__static_slice[w]).name), " ~> ")[1])
-            t_end = date_time_to_db(split(string(last(window__static_slice[w]).name), " ~> ")[2])
+            t_start = date_time_to_db(split(string(first(window__static_slice[w]).name), "~>")[1])
+            t_end = date_time_to_db(split(string(last(window__static_slice[w]).name), "~>")[2])
 
             res = resolution(temporal_block=first(temporal_block()))
             wt = JuMP.value(weight[w])
