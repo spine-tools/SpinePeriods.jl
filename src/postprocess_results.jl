@@ -44,7 +44,7 @@ function postprocess_results!(m::Model, db_url, window__static_slice)
     cp(db_path, new_db_path)
     new_db_url=string("sqlite:///", new_db_path)
 
-    @info "new database copied to $(new_db_path)"
+    @info "New database copied to $(new_db_path)..."
 
     db_map=db_api.DiffDatabaseMapping(new_db_url; upgrade=true)
 
@@ -62,7 +62,7 @@ function postprocess_results!(m::Model, db_url, window__static_slice)
             push!(object_parameter_values, ("temporal_block", tb_name, "block_end", t_end))
             push!(object_parameter_values, ("temporal_block", tb_name, "resolution", string(res)))
             push!(object_parameter_values, ("temporal_block", tb_name, "weight", wt))
-            @info "selected window: $(w) with start $(t_start["data"]) and weight $(wt)"
+            @info "Selected window: $(w) with start $(t_start["data"]) and weight $(wt)"
         end
     end
 
@@ -72,12 +72,12 @@ function postprocess_results!(m::Model, db_url, window__static_slice)
         object_parameters=object_parameters,
         object_parameter_values=object_parameter_values
     )
-    @info "added $(added) items"
+    @info "Added $(added) items.."
     for err in err_log
-        @info "import error: " err.msg
+        @info "Import error: " err.msg
     end
 
-    comment="added temporal blocks from timeslice tool"
+    comment="Added temporal blocks from timeslice tool..."
     db_map.commit_session(comment)
 
 end
@@ -93,7 +93,7 @@ function postprocess_ordering_results!(m::Model, db_url, url_out, window__static
     url_out_uri = URI(url_out)
     url_out_path = url_out_uri.path[2:length(url_out_uri.path)]
     cp(db_path, url_out_path,force=true)
-    @info "new database copied to $(url_out_path)"
+    @info "New database copied to $(url_out_path)"
 
     db_map=db_api.DiffDatabaseMapping(url_out; upgrade=true)
     chron = Dict(
@@ -137,12 +137,12 @@ function postprocess_ordering_results!(m::Model, db_url, url_out, window__static
         object_parameter_values=object_parameter_values,
         object_groups=object_groups,
     )
-    @info "added $(added) items"
+    @info "Added $(added) items..."
     for err in err_log
-        @info "import error: " err.msg
+        @info "Import error: " err.msg
     end
 
-    comment="added temporal blocks from timeslice tool"
+    comment="Added temporal blocks from timeslice tool..."
     db_map.commit_session(comment)
 
 end

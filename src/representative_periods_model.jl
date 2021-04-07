@@ -147,10 +147,10 @@ function add_constraint_error1!(m::Model)
             >=
             + resource_distribution(resource=r, block=b)
             - sum(
-                + (  + weight[w]
-                     / length(window())
-                  ) * resource_distribution_window(resource=r, block=b, window=w)
-                  for w in window()
+                (  + weight[w]
+                / length(window())
+                ) * resource_distribution_window(resource=r, block=b, window=w)
+                for w in window()
             )
         )
     end
@@ -173,7 +173,7 @@ function add_constraint_error2!(m::Model)
             >=
             - resource_distribution(resource=r, block=b)
             + sum(
-                + ( + weight[w]
+                ( + weight[w]
                     / length(window())
                 ) * resource_distribution_window(resource=r, block=b, window=w)
                 for w in window()
@@ -182,6 +182,9 @@ function add_constraint_error2!(m::Model)
     end
 end
 
+"""
+    add_constraint_selected_periods!(m::Model)
+"""
 function add_constraint_selected_periods!(m::Model)
     @fetch selected = m.ext[:variables]
     cons = m.ext[:constraints][:selected_periods] = Dict()
@@ -197,6 +200,9 @@ function add_constraint_selected_periods!(m::Model)
     )
 end
 
+"""
+    enforce_period_mapping!(m::Model)
+"""
 function add_constraint_enforce_period_mapping!(m::Model)
     @fetch chronology = m.ext[:variables]
     cons = m.ext[:constraints][:enforce_mapping] = Dict()
@@ -212,6 +218,9 @@ function add_constraint_enforce_period_mapping!(m::Model)
     end
 end
 
+"""
+    add_constraint_enforce_chronology_less_than_selected!(m::Model)
+"""
 function add_constraint_enforce_chronology_less_than_selected!(m::Model)
     @fetch selected, chronology = m.ext[:variables]
     cons = m.ext[:constraints][:chronology_less_than_selected] = Dict()
@@ -225,6 +234,9 @@ function add_constraint_enforce_chronology_less_than_selected!(m::Model)
     end
 end
 
+"""
+    add_constraint_single_weight!(m::Model)
+"""
 function add_constraint_single_weight!(m::Model)
     @fetch weight, selected = m.ext[:variables]
     cons = m.ext[:constraints][:single_weight] = Dict()
@@ -239,6 +251,9 @@ function add_constraint_single_weight!(m::Model)
     end
 end
 
+"""
+    add_constraint_link_weight_and_chronology!(m::Model)
+"""
 function add_constraint_link_weight_and_chronology!(m::Model)
     @fetch weight, chronology = m.ext[:variables]
     cons = m.ext[:constraints][:link_weight_and_chronology] = Dict()
@@ -252,6 +267,9 @@ function add_constraint_link_weight_and_chronology!(m::Model)
     end
 end
 
+"""
+    add_constraint_total_weight!(m::Model)
+"""
 function add_constraint_total_weight!(m::Model)
     @fetch weight = m.ext[:variables]
     cons = m.ext[:constraints][:selected_periods]

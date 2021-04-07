@@ -18,6 +18,12 @@ pkg"registry add https://github.com/Spine-project/SpineJuliaRegistry"
 pkg"add SpinePeriods"
 ```
 
+## TODO List
+
+* Comment on the two different selection methods
+* Update documentation for use
+* Running from toolbox
+
 ## Documentation
 
 ### Step by step setup
@@ -26,7 +32,7 @@ pkg"add SpinePeriods"
 2. Setup your `model` object - specify the start and end of the time series and the `roll_forward` parameter, e.g. to 1D (this last bit is quite important)
 3. Specify your time series resolution in a `temporal_block` object in the database.
 4. Create a `representative_period` object. Add relationships to units and nodes (see below). You can also specify model options (such as number of representative periods to select) here.
-5. From Julia run `SpinePeriods.run_spineperiods(<sqlite_file>)`.
+5. From Julia run `SpinePeriods.run_spine_periods(<sqlite_file>)`.
 
 ### Objective
 

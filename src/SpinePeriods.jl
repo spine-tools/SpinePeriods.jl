@@ -19,22 +19,15 @@
 
 module SpinePeriods
 
-using SpineOpt
-using SpineInterface
-using JuMP
-using Dates
-using URIParser
-using JSON
-using Cbc
+using SpineOpt, SpineInterface, JuMP, Dates, URIParser, JSON
 
 include("preprocess_data_structure.jl")
 include("representative_periods_model.jl")
 include("postprocess_results.jl")
-include("run_spineperiods.jl")
-include("run_spineperiods_ordering.jl")
-include("run_Spine_periods_master.jl")
+include("run_spine_periods_selection.jl")
+include("run_spine_periods_ordering.jl")
+include("run_spine_periods.jl")
 
-export run_SpinePeriods_master
-
+export run_spine_periods
 
 end  # module
