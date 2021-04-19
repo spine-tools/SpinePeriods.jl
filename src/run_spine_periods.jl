@@ -1,5 +1,5 @@
 """
-    run_spine_periods_ordering(url_in, optimizer)
+    run_spine_periods_ordering(db_url_in, db_url_out; with_optimizer)
 
 Solves an optimisation problem which selects (and orders) representative periods.
 
