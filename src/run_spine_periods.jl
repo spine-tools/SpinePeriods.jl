@@ -14,7 +14,7 @@ function run_spine_periods(url_in::String, url_out::String;
         )
     )
     @info "Reading database..."
-    using_spinedb(url_in; upgrade=true)
+    using_spinedb(url_in, SpineOpt; upgrade=true)
 
     if representative_period_method(representative_period=first(representative_period())) == :representative_periods
         return run_spine_periods_selection(
