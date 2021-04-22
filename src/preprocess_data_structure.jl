@@ -17,13 +17,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #############################################################################
 
-function preprocess_data_structure()
+function preprocess_data_structure(m)
     generate_blocks()
     generate_resources()
-    window__static_slice = generate_distributions()
+    window__static_slice = generate_distributions(m)
+    run_checks()
+    return window__static_slice
 end
 
-""" 
+"""
     generate_blocks()
 
 The representative periods model decomposes a distribution into a number of operatig point blocks
@@ -52,7 +54,7 @@ end
 The representative period model selects a number of days that best represent the distribution of various time series
 For now, that's either a `demand` time series or a `unit_availability_factor` time series or a `unit_capacity` time series
 In the model we generalise these into a `resource`. We define this as a new object_class and copy into it
-and `nodes` or `units` that have a `node__representative_period` or `unit__representative_period` relationship respectively
+and `nodes` or `units` that have a `node__representative_period` or `unit__representative_period` relationship respectively.
 """
 function generate_resources()
     resource = ObjectClass(:resource, [])
@@ -60,6 +62,7 @@ function generate_resources()
         r = Object(Symbol(u.name))
         add_object!(resource, r)
         # copy the timeseries data to a new unified resource object
+        # Normalise by the maximum value
         resource.parameter_values[r] = Dict()
         resource.parameter_values[r][:resource_availability] = unit.parameter_values[u][:unit_availability_factor]
         # each resource time series can have a weight defined by representative_period_weight(unit=u, representative_period=rp). It should have a default of 1, but we check just in case
@@ -108,9 +111,9 @@ end
 
 """
 Generate the distribution for each time series as defined by:
-- Number of operating point segments (blocks):
+- Number of operating point segments (blocks)
 """
-function generate_distributions()
+function generate_distributions(m::Model)
 
     rp=first(representative_period())
     n_periods = representative_periods(representative_period=rp)
@@ -123,7 +126,6 @@ function generate_distributions()
         static_slice = $static_slice
     end
 
-    ts_vals = Dict()
     ts_vals_window = Dict()
 
     res_dist_window = Dict()
@@ -137,7 +139,7 @@ function generate_distributions()
 
     for r in resource()
         res_dist_horizon[r] = zeros(size(block(),1))
-        ts_max[r] = resource_availability(resource=r, t=first(time_slice()))
+        ts_max[r] = resource_availability(resource=r, t=first(SpineOpt.time_slice(m)))
         ts_min[r] = ts_max[r]
     end
 
@@ -149,7 +151,7 @@ function generate_distributions()
 
         window__static_slice[w] = []
 
-        for t in time_slice()
+        for t in SpineOpt.time_slice(m)
             ss = Object(Symbol(string(t)))
             add_object!(static_slice, ss)
             push!(window__static_slice[w], ss)
@@ -158,14 +160,17 @@ function generate_distributions()
 
         for r in resource()
             res_dist_window[r, w] = zeros(length(block()))
-            for t in time_slice()
+            for t in SpineOpt.time_slice(m)
                 ts_vals[r, ss_ts[t]] = resource_availability(resource=r, t=t)
                 (ts_vals[r, ss_ts[t]] == nothing) && (ts_vals[r, ss_ts[t]] = 0)
                 (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
                 (ts_vals[r, ss_ts[t]] < ts_min[r]) && (ts_min[r] = ts_vals[r, ss_ts[t]])
+
+                # Also seperate values by resource, window and time slice
+                ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end
         end
-        SpinePeriods.roll_temporal_structure() || break
+        SpineOpt.roll_temporal_structure!(m) || break
         i_win += 1
     end
 
@@ -185,6 +190,34 @@ function generate_distributions()
         end
     end
 
+    # r = first(resource())
+    # w = first(window())
+    # t = first(window__static_slice[w])
+    # @show ts_vals_window[r,w,t]
+
+    # Create relationship classes
+    # Create resource window static slice relationship class
+    # Allows indexing resource values by window and time slice
+    res_wdw_parameter_values = Dict(
+        (r, w, ss) => Dict(
+            :resource_availability_window_static_slice =>
+            SpineInterface.ScalarParameterValue(ts_vals_window[r,w,ss])
+        )
+        for r in resource() for w in window() for ss in window__static_slice[w]
+    )
+
+
+    resource__window__static_slice = RelationshipClass(
+        :resource_availabilty__window__static_slice,
+        [:resource, :window, :ss],
+        [
+            (resource=r, window=w, ss=ss)
+            for r in resource() for w in window() for ss in window__static_slice[w]
+        ],
+        res_wdw_parameter_values
+    )
+
+    # Define resource__block relationship class
     res_blk_parameter_values = Dict(
         (r, b) => Dict(:resource_distribution => SpineInterface.ScalarParameterValue(res_dist_horizon[r][parse(Int,string(b.name)[2:end])]))
         for r in resource() for b in block()
@@ -197,6 +230,7 @@ function generate_distributions()
         res_blk_parameter_values
     )
 
+    # Define resource_distribution_window
     res_blk_wdw_parameter_values = Dict(
         (r, b, w) => Dict(:resource_distribution_window => SpineInterface.ScalarParameterValue(res_dist_window[r, w][parse(Int,string(b.name)[2:end])]))
         for r in resource() for b in block() for w in window()
@@ -211,31 +245,25 @@ function generate_distributions()
 
     resource_distribution = Parameter(:resource_distribution, [resource__block])
     resource_distribution_window = Parameter(:resource_distribution_window, [resource__block__window])
+    resource_availability_window_static_slice = Parameter(
+        :resource_availability_window_static_slice,
+        [resource__window__static_slice]
+    )
 
     @eval begin
         resource__block = $resource__block
         resource__block__window = $resource__block__window
         resource_distribution = $resource_distribution
         resource_distribution_window = $resource_distribution_window
+        resource__window__static_slice =
+            $resource__window__static_slice
+        resource_availability_window_static_slice =
+            $resource_availability_window_static_slice
+        window__static_slice = $window__static_slice # ???
     end
-    window__static_slice
 end
 
-function write_ts_data(window__static_slice, ts_vals)
-    io = open("ts_vals.csv", "w")
-    print(io, "window,ts")
-    for r in resource()
-        print(io, string(",", r))
-    end
-    print(io, "\n")
-    for w in window()
-        for ss in window__static_slice[w]
-            print(io, string(w, ",", ss))
-            for r in resource()
-                print(io, string(",", ts_vals[r, ss]))
-            end
-            print(io, "\n")
-        end
-    end
-    close(io)
+function run_checks()
+    err_msg = "Only one representative period possible. This is likely due to the `roll_forward` parameter not being defined in `model`, as this definesthe length of a representative period."
+    @assert length(window()) > 1 eval(err_msg)
 end

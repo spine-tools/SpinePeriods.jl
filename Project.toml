@@ -5,9 +5,10 @@ version = "0.1.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 SpineInterface = "0cda1612-498a-11e9-3c92-77fa82595a4f"
-SpineOpt = "b74cbf36-17f7-11e9-3430-fdc535b30a00"
+SpineOpt = "0d8fc150-4032-4b6e-9540-20efcb304861"
 URIParser = "30578b45-9adc-5946-b283-645ec420af67"
 
 [compat]
