@@ -23,6 +23,7 @@ pkg"add SpinePeriods"
 * Comment on the two different selection methods
 * Update documentation for use
 * Running from toolbox
+* The length of a representative period is defined by the `roll_forward` duration, so this has to be defined.
 
 ## Documentation
 

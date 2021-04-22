@@ -10,9 +10,6 @@ function run_spine_periods_selection(
         url_out::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
-    @info "Reading database..."
-    using_spinedb(url_in, SpineOpt; upgrade=true)
-
     @info "Processing SpinePeriods temporal structure..."
     m = Model(with_optimizer)
     m.ext[:instance] = model()[1]

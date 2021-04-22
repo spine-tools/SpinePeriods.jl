@@ -21,6 +21,8 @@ function preprocess_data_structure(m)
     generate_blocks()
     generate_resources()
     window__static_slice = generate_distributions(m)
+    run_checks()
+    return window__static_slice
 end
 
 """
@@ -259,4 +261,9 @@ function generate_distributions(m::Model)
             $resource_availability_window_static_slice
         window__static_slice = $window__static_slice # ???
     end
+end
+
+function run_checks()
+    err_msg = "Only one representative period possible. This is likely due to the `roll_forward` parameter not being defined in `model`, as this definesthe length of a representative period."
+    @assert length(window()) > 1 eval(err_msg)
 end
