@@ -1,5 +1,5 @@
 """
-    run_spine_periods_selection(url_in, url_out, optimizer)
+    run_spine_periods_selection(url_in, out_file, optimizer)
 
 Solves an optimisation problem which selects and orders representative periods.
 
@@ -7,7 +7,7 @@ Definitely works when choosing days in a year, but deviations from that (e.g. ch
 """
 function run_spine_periods_selection(
         url_in::String,
-        url_out::String;
+        out_file::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "Processing SpinePeriods temporal structure..."
@@ -38,7 +38,7 @@ function run_spine_periods_selection(
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))."
-        postprocess_results!(m, url_in, url_out, window__static_slice)
+        postprocess_results!(m, url_in, out_file, window__static_slice)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))."
     end

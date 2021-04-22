@@ -155,11 +155,14 @@ function add_representative_period_temporal_blocks!(
             t_end = date_time_to_db(split(string(last(window__static_slice[w]).name), "~>")[2])
 
             res = resolution(temporal_block=first(temporal_block()))
+            db_res = duration_to_db(julia_resolution_to_db_resolution_string(res)) # this needs to be more generic
+
+            res = resolution(temporal_block=first(temporal_block()))
             wt = JuMP.value(weight[w])
             push!(objects, ("temporal_block", tb_name))
             push!(object_parameter_values, ("temporal_block", tb_name, "block_start", t_start))
             push!(object_parameter_values, ("temporal_block", tb_name, "block_end", t_end))
-            push!(object_parameter_values, ("temporal_block", tb_name, "resolution", string(res)))
+            push!(object_parameter_values, ("temporal_block", tb_name, "resolution", db_res))
             push!(object_parameter_values, ("temporal_block", tb_name, "weight", wt))
             @info "Selected window: $(w) with start $(t_start["data"]) and weight $(wt)"
         end
@@ -174,6 +177,25 @@ function add_representative_period_mapping!(
     chron = Dict(
         (w1, w2) => value(m.ext[:variables][:chronology][w1,w2])
         for w1 in SpinePeriods.window(), w2 in SpinePeriods.window()
+    )
+    nonZero = findall(x -> x == 1, chron)
+    chronMap = Dict(w[1] => w[2] for w in nonZero)
+    periods = []
+    for w in window()
+        ss1 = window__static_slice[w][1]
+        ss1_start = string(rstrip(split(split(string(ss1.name), ">")[1], "~")[1]))
+        w2 = chronMap[w]
+        ss2 = string("rp_", w2)
+        push!(periods, [ss1_start,ss2])
+    end
+
+    ordering_parameter = map_to_db(periods)
+    push!(object_parameters, ("temporal_block", "representative_periods_mapping"))
+    push!(
+        object_parameter_values, (
+            "temporal_block", string(temporal_block()[1]), 
+            "representative_periods_mapping", ordering_parameter
+        )
     )
     return nothing
 end

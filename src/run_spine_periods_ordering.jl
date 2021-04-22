@@ -5,7 +5,7 @@ Solves an optimisation problem which selects representative periods.
 """
 function run_spine_periods_ordering(
         url_in::String,
-        url_out::String;
+        out_file::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
     @info "Processing SpinePeriods temporal structure..."
@@ -40,10 +40,10 @@ function run_spine_periods_ordering(
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))."
-        order = postprocess_ordering_results!(m, url_in, url_out, window__static_slice)
+        postprocess_results!(m, url_in, out_file, window__static_slice)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))."
     end
 
-    return m, url_in, window__static_slice, order
+    return m, url_in, window__static_slice
 end
