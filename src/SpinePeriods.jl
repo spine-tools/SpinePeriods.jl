@@ -27,6 +27,7 @@ include("postprocess_results.jl")
 include("run_spine_periods_selection.jl")
 include("run_spine_periods_ordering.jl")
 include("run_spine_periods.jl")
+include("util.jl")
 
 export run_spine_periods
 

@@ -5,12 +5,12 @@ rm(joinpath(@__DIR__, "Belgium_2017_finder_rps.sqlite"), force=true)
 sqlite_file = joinpath(@__DIR__, "Belgium_2017_finder")
 
 # Run
-m = SpinePeriods.run_spine_periods_selection(
+m = run_spine_periods(
     "sqlite:///$(sqlite_file).sqlite",
-    "sqlite:///$(sqlite_file)_rps.sqlite",
+    "$(sqlite_file)_rps.json",
     with_optimizer=optimizer_with_attributes(
         Cbc.Optimizer, "logLevel" => 1, "ratioGap" => 0.01,
-        "seconds" => 60
+        "seconds" => 10
     )
 )
 

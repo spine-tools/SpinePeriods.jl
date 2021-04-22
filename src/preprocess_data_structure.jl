@@ -18,10 +18,11 @@
 #############################################################################
 
 function preprocess_data_structure(m)
+    run_checks_pre()
     generate_blocks()
     generate_resources()
     window__static_slice = generate_distributions(m)
-    run_checks()
+    run_checks_post()
     return window__static_slice
 end
 
@@ -263,7 +264,16 @@ function generate_distributions(m::Model)
     end
 end
 
-function run_checks()
-    err_msg = "Only one representative period possible. This is likely due to the `roll_forward` parameter not being defined in `model`, as this definesthe length of a representative period."
+function run_checks_pre()
+    model_instance = first(model())
+    err_msg = "Please define `roll_forward` parameter for `$(model_instance)`. This determines the length of a representative period."
+    @assert isnothing(roll_forward(model=model_instance)) == false eval(err_msg)
+end
+
+function run_checks_post()
+    err_msg = "No resources defined so cannot select representative days. Please define relationships for `representative_periods` to fix this."
+    @assert length(resource()) > 0
+
+    err_msg = "Only one representative period possible, which you probably don't want. This is likely due to the `roll_forward` parameter, as this defines the length of a representative period."
     @assert length(window()) > 1 eval(err_msg)
 end

@@ -5,7 +5,7 @@ rm(joinpath(@__DIR__, "Belgium_2017_orderer_rps.sqlite"), force=true)
 sqlite_file = joinpath(@__DIR__, "Belgium_2017_orderer")
 
 # Run
-m, url_in, window__static_slice, order = SpinePeriods.run_spine_periods_ordering(
+m, url_in, window__static_slice, order = run_spine_periods(
     "sqlite:///$(sqlite_file).sqlite",
     "sqlite:///$(sqlite_file)_rps.sqlite",
     with_optimizer=optimizer_with_attributes(
