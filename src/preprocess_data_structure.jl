@@ -52,7 +52,7 @@ end
 The representative period model selects a number of days that best represent the distribution of various time series
 For now, that's either a `demand` time series or a `unit_availability_factor` time series or a `unit_capacity` time series
 In the model we generalise these into a `resource`. We define this as a new object_class and copy into it
-and `nodes` or `units` that have a `node__representative_period` or `unit__representative_period` relationship respectively
+and `nodes` or `units` that have a `node__representative_period` or `unit__representative_period` relationship respectively.
 """
 function generate_resources()
     resource = ObjectClass(:resource, [])
@@ -109,7 +109,7 @@ end
 
 """
 Generate the distribution for each time series as defined by:
-- Number of operating point segments (blocks):
+- Number of operating point segments (blocks)
 """
 function generate_distributions(m::Model)
 
@@ -259,23 +259,4 @@ function generate_distributions(m::Model)
             $resource_availability_window_static_slice
         window__static_slice = $window__static_slice # ???
     end
-end
-
-function write_ts_data(window__static_slice, ts_vals)
-    io = open("ts_vals.csv", "w")
-    print(io, "window,ts")
-    for r in resource()
-        print(io, string(",", r))
-    end
-    print(io, "\n")
-    for w in window()
-        for ss in window__static_slice[w]
-            print(io, string(w, ",", ss))
-            for r in resource()
-                print(io, string(",", ts_vals[r, ss]))
-            end
-            print(io, "\n")
-        end
-    end
-    close(io)
 end
