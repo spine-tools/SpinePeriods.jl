@@ -16,4 +16,4 @@ m = run_spine_periods(
 
 # Assert that the weights add up to 365
 weight = Dict(w => value(m.ext[:variables][:weight][w]) for w in SpinePeriods.window())
-@test sum(last.(collect(weight))) == length(SpinePeriods.window())
+@test isapprox(sum(last.(collect(weight))), length(SpinePeriods.window()), rtol=10^-9)

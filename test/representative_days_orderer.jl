@@ -22,8 +22,8 @@ chron = Dict(
 vecChron = collect(chron)
 idx = findall(x -> last(x) > 0, collect(chron))
 vecChron[idx]
-rp = first(SpineInterface.representative_period())
-@test length(unique(last.(first.(vecChron[idx])))) ≈ SpineInterface.representative_periods(representative_period=rp)
+rp = first(SpinePeriods.representative_period())
+@test length(unique(last.(first.(vecChron[idx])))) ≈ SpinePeriods.representative_periods(representative_period=rp)
 
 # Assert that the weights add up to 365
 weight = Dict(w => value(m.ext[:variables][:weight][w]) for w in SpinePeriods.window())

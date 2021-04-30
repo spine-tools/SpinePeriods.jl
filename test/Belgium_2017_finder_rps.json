@@ -130,7 +130,10 @@
             "temporal_block",
             "rp_W40",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -160,7 +163,10 @@
             "temporal_block",
             "rp_W152",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -190,7 +196,10 @@
             "temporal_block",
             "rp_W169",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -220,7 +229,10 @@
             "temporal_block",
             "rp_W189",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -250,7 +262,10 @@
             "temporal_block",
             "rp_W260",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -280,7 +295,10 @@
             "temporal_block",
             "rp_W263",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -310,7 +328,10 @@
             "temporal_block",
             "rp_W278",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -340,7 +361,10 @@
             "temporal_block",
             "rp_W284",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -370,7 +394,10 @@
             "temporal_block",
             "rp_W286",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -400,7 +427,10 @@
             "temporal_block",
             "rp_W301",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
@@ -430,7 +460,10 @@
             "temporal_block",
             "rp_W346",
             "resolution",
-            "1 hour"
+            {
+                "data": "1h",
+                "type": "duration"
+            }
         ],
         [
             "temporal_block",
