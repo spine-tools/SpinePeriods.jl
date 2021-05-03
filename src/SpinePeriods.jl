@@ -19,7 +19,7 @@
 
 module SpinePeriods
 
-using SpineOpt, SpineInterface, JuMP, Dates, URIParser, JSON
+using SpineOpt, SpineInterface, JuMP, Dates, URIs, JSON
 
 include("preprocess_data_structure.jl")
 include("representative_periods_model.jl")
