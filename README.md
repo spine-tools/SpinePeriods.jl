@@ -66,4 +66,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-Complete once license is done.
+SpineOpt is licensed under GNU Lesser General Public License version 3.0 or later.
