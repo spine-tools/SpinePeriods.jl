@@ -1,5 +1,5 @@
 """
-    run_spine_periods_ordering(url_in, url_out; with_optimizer)
+    run_spine_periods_ordering(url_in, out_file; with_optimizer)
 
 Solves an optimisation problem which selects (and orders) representative periods.
 
@@ -7,23 +7,29 @@ Specifying which optimisation method can be done from, and can be either:
 * `representative_periods` - selects representative_periods.
 * `representative_periods_ordering` - selects and orders representative periods.
 """
-function run_spine_periods(url_in::String, url_out::String; 
+function run_spine_periods(url_in::String, out_file::String; 
         with_optimizer=optimizer_with_attributes(
             Cbc.Optimizer, "logLevel" => 1, "ratioGap" => 0.01,
             "seconds" => 60*10
         )
     )
+    check_out_file(out_file)
+
+    if isfile(split(url_in, "///")[2]) == false 
+        @warn "Input database $(url_in) may not exist."
+    end
+
     @info "Reading database..."
     using_spinedb(url_in, SpineOpt; upgrade=true)
 
-    if representative_period_method(representative_period=first(representative_period())) == :representative_periods
+    if is_selection_model()
         return run_spine_periods_selection(
-            url_in, url_out,
+            url_in, out_file,
             with_optimizer=with_optimizer
         )
-    elseif representative_period_method(representative_period=first(representative_period())) == :representative_periods_ordering
+    elseif is_ordering_model()
         return run_spine_periods_ordering(
-            url_in, url_out,
+            url_in, out_file,
             with_optimizer=with_optimizer
         )
     else
