@@ -1,7 +1,7 @@
 name = "SpinePeriods"
 uuid = "163584a9-52e1-4a4e-9262-a8c2d5456af4"
-authors = ["Jody Dillon <jody.dillon@energyreform.ie>", "Manuel Marin <manuelma@kth.se>"]
-version = "0.1.0"
+authors = ["Sebastian Gonzato <sebastian.gonzato@kuleuven.be>", "Jody Dillon <jody.dillon@energyreform.ie>", "Maren Ihlemann <maren.ihlemann@kuleuven.be>", "Manuel Marin <manuelma@kth.se>"]
+version = "0.1.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
