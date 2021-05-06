@@ -85,7 +85,7 @@ end
 Minimize the total error between target and representative distributions.
 """
 function set_objective!(m::Model)
-    @fetch d_error = m.ext[:variables]
+    @unpack d_error = m.ext[:variables]
     @objective(
         m,
         Min,
@@ -107,7 +107,7 @@ Minimize the total error between target and representative time series.
 """
 function set_ordering_objective!(m::Model)
     ts_vals = resource_availability_window_static_slice
-    @fetch chronology = m.ext[:variables]
+    @unpack chronology = m.ext[:variables]
 
     @objective(
         m,
@@ -137,7 +137,7 @@ In conjunction with add_constraint_error2, defines the error between
 the representative distributions and the target distributions.
 """
 function add_constraint_error1!(m::Model)
-    @fetch weight, d_error = m.ext[:variables]
+    @unpack weight, d_error = m.ext[:variables]
     cons = m.ext[:constraints][:error1] = Dict()
     rp = first(representative_period())
     for (r, b) in resource__block()
@@ -163,7 +163,7 @@ In conjunction with add_constraint_error1, defines the error between
 the representative distributions and the target distributions.
 """
 function add_constraint_error2!(m::Model)
-    @fetch d_error, weight = m.ext[:variables]
+    @unpack d_error, weight = m.ext[:variables]
     cons = m.ext[:constraints][:error2] = Dict()
     rp = first(representative_period())
     for (r, b) in resource__block()
@@ -186,7 +186,7 @@ end
     add_constraint_selected_periods!(m::Model)
 """
 function add_constraint_selected_periods!(m::Model)
-    @fetch selected = m.ext[:variables]
+    @unpack selected = m.ext[:variables]
     cons = m.ext[:constraints][:selected_periods] = Dict()
     rp = first(representative_period())
     cons = @constraint(
@@ -204,7 +204,7 @@ end
     enforce_period_mapping!(m::Model)
 """
 function add_constraint_enforce_period_mapping!(m::Model)
-    @fetch chronology = m.ext[:variables]
+    @unpack chronology = m.ext[:variables]
     cons = m.ext[:constraints][:enforce_mapping] = Dict()
     for w1 in window()
         cons[w1] = @constraint(
@@ -222,7 +222,7 @@ end
     add_constraint_enforce_chronology_less_than_selected!(m::Model)
 """
 function add_constraint_enforce_chronology_less_than_selected!(m::Model)
-    @fetch selected, chronology = m.ext[:variables]
+    @unpack selected, chronology = m.ext[:variables]
     cons = m.ext[:constraints][:chronology_less_than_selected] = Dict()
     for w1 in window(), w2 in window()
         cons[w1,w2] = @constraint(
@@ -238,7 +238,7 @@ end
     add_constraint_single_weight!(m::Model)
 """
 function add_constraint_single_weight!(m::Model)
-    @fetch weight, selected = m.ext[:variables]
+    @unpack weight, selected = m.ext[:variables]
     cons = m.ext[:constraints][:single_weight] = Dict()
     rp = first(representative_period())
     for w in window()
@@ -255,7 +255,7 @@ end
     add_constraint_link_weight_and_chronology!(m::Model)
 """
 function add_constraint_link_weight_and_chronology!(m::Model)
-    @fetch weight, chronology = m.ext[:variables]
+    @unpack weight, chronology = m.ext[:variables]
     cons = m.ext[:constraints][:link_weight_and_chronology] = Dict()
     for w2 in window()
         cons[w2] = @constraint(
@@ -271,7 +271,7 @@ end
     add_constraint_total_weight!(m::Model)
 """
 function add_constraint_total_weight!(m::Model)
-    @fetch weight = m.ext[:variables]
+    @unpack weight = m.ext[:variables]
     cons = m.ext[:constraints][:selected_periods]
     rp = first(representative_period())
     cons = @constraint(

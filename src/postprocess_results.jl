@@ -19,7 +19,7 @@
 
 
 function postprocess_results!(m::Model, db_url, out_file, window__static_slice)
-    @fetch selected, weight = m.ext[:variables]
+    @unpack selected, weight = m.ext[:variables]
 
     objects = []
     object_parameters = []
@@ -62,7 +62,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice)
 end
 
 function postprocess_ordering_results!(m::Model, db_url, out_file, window__static_slice)
-    @fetch selected, weight = m.ext[:variables]
+    @unpack selected, weight = m.ext[:variables]
     
     objects = []
     object_parameters = []

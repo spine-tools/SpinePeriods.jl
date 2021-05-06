@@ -19,3 +19,4 @@ function check_out_file(str::String)
         error("Output file $(str) extension must be .sqlite or .json.")
     end
 end
+
