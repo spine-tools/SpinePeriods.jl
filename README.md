@@ -10,7 +10,7 @@ Fill in once testing has been setup.
 
 ```julia
 using Pkg
-pkg"registry add https://github.com/Spine-project/SpineJuliaRegistry"
+pkg"registry add https://github.com/Spine-tools/SpineJuliaRegistry"
 pkg"add SpinePeriods"
 ```
 
@@ -40,7 +40,7 @@ run_spine_periods(
 
 Two models are possible to select representative periods, `representative_periods` and `representative_periods_ordering`, defined as the parameter `representative_period_method` in a `representative_period` object. They are both described in [this working paper](https://www.mech.kuleuven.be/en/tme/research/energy-systems-integration-modeling/pdf-publications/wp-esim2021-1) where they are referred to as **ORDF** and **ORDO** respectively.
 * `representative_periods` simply selects representative periods.
-* `representative_periods_ordering` also order representative periods throughout the year so that long term storage arbitrage can be modeled (see [this section of the SpineOpt documentation](https://spine-project.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/)).
+* `representative_periods_ordering` also order representative periods throughout the year so that long term storage arbitrage can be modeled (see [this section of the SpineOpt documentation](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/)).
 
 #### Time series input
 
