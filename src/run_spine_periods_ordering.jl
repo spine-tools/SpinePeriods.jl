@@ -8,21 +8,15 @@ function run_spine_periods_ordering(
         out_file::String;
         with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
     )
-    @info "Processing SpinePeriods temporal structure..."
+    @info "Initializing model..."
     m = Model(with_optimizer)
-    m.ext[:instance] = model()[1]
-    SpineOpt.generate_temporal_structure!(m)
+    m.ext[:spineopt] = SpineOptExt(first(model()))
+    @info "Generating SpinePeriods temporal structure..."
+    generate_temporal_structure!(m)
     
     @info "Preprocessing data structure..."
     window__static_slice = preprocess_data_structure(m)
     
-    @info "Initializing model..."
-    m.ext[:variables] = Dict{Symbol,Dict}()
-    m.ext[:variables_lb] = Dict{Symbol,Any}()
-    m.ext[:variables_ub] = Dict{Symbol,Any}()
-    m.ext[:values] = Dict{Symbol,Dict}()
-    m.ext[:constraints] = Dict{Symbol,Dict}()
-
     create_ordering_variables!(m)
     add_constraint_enforce_period_mapping!(m)
     # line 390, seems fine

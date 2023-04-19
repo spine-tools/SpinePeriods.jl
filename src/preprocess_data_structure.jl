@@ -29,7 +29,7 @@ end
 """
     generate_blocks()
 
-The representative periods model decomposes a distribution into a number of operatig point blocks
+The representative periods model decomposes a distribution into a number of operating point blocks
 as specified by representative_blocks(representative_period=rp). Here we create a new object class
 called block and create an object for each block.
 """
@@ -140,7 +140,7 @@ function generate_distributions(m::Model)
 
     for r in resource()
         res_dist_horizon[r] = zeros(size(block(),1))
-        ts_max[r] = resource_availability(resource=r, t=first(SpineOpt.time_slice(m)))
+        ts_max[r] = resource_availability(resource=r, t=first(time_slice(m)))
         ts_min[r] = ts_max[r]
     end
 
@@ -152,16 +152,17 @@ function generate_distributions(m::Model)
 
         window__static_slice[w] = []
 
-        for t in SpineOpt.time_slice(m)
-            ss = Object(Symbol(string(t)))
-            add_object!(static_slice, ss)
+        for t in time_slice(m)
+            ss_name = Symbol(string(t))
+            add_object!(static_slice, Object(ss_name))
+            ss = static_slice(ss_name)
             push!(window__static_slice[w], ss)
             ss_ts[t] = ss
         end
 
         for r in resource()
             res_dist_window[r, w] = zeros(length(block()))
-            for t in SpineOpt.time_slice(m)
+            for t in time_slice(m)
                 ts_vals[r, ss_ts[t]] = resource_availability(resource=r, t=t)
                 (ts_vals[r, ss_ts[t]] == nothing) && (ts_vals[r, ss_ts[t]] = 0)
                 (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
@@ -171,12 +172,11 @@ function generate_distributions(m::Model)
                 ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end
         end
-        SpineOpt.roll_temporal_structure!(m) || break
+        roll_temporal_structure!(m) || break
         i_win += 1
     end
-
-    window_time_interval = 100/length(window__static_slice[first(window())])
-    horizon_time_interval = window_time_interval/length(window())
+    window_time_interval = 100 / length(window__static_slice[first(window())])
+    horizon_time_interval = window_time_interval / length(window())
     for r in resource()
         bin_interval = (ts_max[r] - ts_min[r]) / length(block())
         for w in window()
@@ -272,7 +272,7 @@ end
 
 function run_checks_post()
     err_msg = "No resources defined so cannot select representative days. Please define relationships for `representative_periods` to fix this."
-    @assert length(resource()) > 0
+    @assert length(resource()) > 0 eval(err_msg)
 
     err_msg = "Only one representative period possible, which you probably don't want. This is likely due to the `roll_forward` parameter, as this defines the length of a representative period."
     @assert length(window()) > 1 eval(err_msg)

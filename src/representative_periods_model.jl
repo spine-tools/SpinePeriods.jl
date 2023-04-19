@@ -21,7 +21,7 @@
 Create the variables for the model
 """
 function create_variables!(m)
-    var = m.ext[:variables][:d_error] = Dict{Tuple, JuMP.VariableRef}()
+    var = m.ext[:spineopt].variables[:d_error] = Dict{Tuple, JuMP.VariableRef}()
     for (r, b) in resource__block()
             var[r, b] = @variable(m,
                 base_name="d_error[$(r), $(b)]",
@@ -29,7 +29,7 @@ function create_variables!(m)
             )
     end
 
-    var = m.ext[:variables][:selected] = Dict{Object, JuMP.VariableRef}()
+    var = m.ext[:spineopt].variables[:selected] = Dict{Object, JuMP.VariableRef}()
     for w in window()
             var[w] = @variable(m,
                     base_name="selected[$w]",
@@ -37,7 +37,7 @@ function create_variables!(m)
             )
     end
 
-    var = m.ext[:variables][:weight] = Dict{Object, JuMP.VariableRef}()
+    var = m.ext[:spineopt].variables[:weight] = Dict{Object, JuMP.VariableRef}()
     for w in window()
             var[w] = @variable(m,
                 base_name="weight[$w]",
@@ -51,7 +51,7 @@ Create the variables for the integer program which orders representative periods
 """
 function create_ordering_variables!(m)
 
-    var = m.ext[:variables][:selected] = Dict{Object, JuMP.VariableRef}()
+    var = m.ext[:spineopt].variables[:selected] = Dict{Object, JuMP.VariableRef}()
     for w in window()
         var[w] = @variable(m,
                 base_name="selected[$w]",
@@ -59,7 +59,7 @@ function create_ordering_variables!(m)
         )
     end
 
-    var = m.ext[:variables][:weight] = Dict{Object, JuMP.VariableRef}()
+    var = m.ext[:spineopt].variables[:weight] = Dict{Object, JuMP.VariableRef}()
     for w in window()
             var[w] = @variable(m,
                 base_name="weight[$w]",
@@ -67,7 +67,7 @@ function create_ordering_variables!(m)
             )
     end
 
-    var = m.ext[:variables][:chronology] = Dict{Tuple, JuMP.VariableRef}()
+    var = m.ext[:spineopt].variables[:chronology] = Dict{Tuple, JuMP.VariableRef}()
     for w1 in window()
         for w2 in window()
             var[w1, w2] = @variable(m,
@@ -85,7 +85,7 @@ end
 Minimize the total error between target and representative distributions.
 """
 function set_objective!(m::Model)
-    @unpack d_error = m.ext[:variables]
+    @unpack d_error = m.ext[:spineopt].variables
     @objective(
         m,
         Min,
@@ -107,7 +107,7 @@ Minimize the total error between target and representative time series.
 """
 function set_ordering_objective!(m::Model)
     ts_vals = resource_availability_window_static_slice
-    @unpack chronology = m.ext[:variables]
+    @unpack chronology = m.ext[:spineopt].variables
 
     @objective(
         m,
@@ -137,8 +137,8 @@ In conjunction with add_constraint_error2, defines the error between
 the representative distributions and the target distributions.
 """
 function add_constraint_error1!(m::Model)
-    @unpack weight, d_error = m.ext[:variables]
-    cons = m.ext[:constraints][:error1] = Dict()
+    @unpack weight, d_error = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:error1] = Dict()
     rp = first(representative_period())
     for (r, b) in resource__block()
         cons[r, b] = @constraint(
@@ -163,8 +163,8 @@ In conjunction with add_constraint_error1, defines the error between
 the representative distributions and the target distributions.
 """
 function add_constraint_error2!(m::Model)
-    @unpack d_error, weight = m.ext[:variables]
-    cons = m.ext[:constraints][:error2] = Dict()
+    @unpack d_error, weight = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:error2] = Dict()
     rp = first(representative_period())
     for (r, b) in resource__block()
         cons[r, b] = @constraint(
@@ -186,8 +186,8 @@ end
     add_constraint_selected_periods!(m::Model)
 """
 function add_constraint_selected_periods!(m::Model)
-    @unpack selected = m.ext[:variables]
-    cons = m.ext[:constraints][:selected_periods] = Dict()
+    @unpack selected = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:selected_periods] = Dict()
     rp = first(representative_period())
     cons = @constraint(
         m,
@@ -204,8 +204,8 @@ end
     enforce_period_mapping!(m::Model)
 """
 function add_constraint_enforce_period_mapping!(m::Model)
-    @unpack chronology = m.ext[:variables]
-    cons = m.ext[:constraints][:enforce_mapping] = Dict()
+    @unpack chronology = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:enforce_mapping] = Dict()
     for w1 in window()
         cons[w1] = @constraint(
             m,
@@ -222,8 +222,8 @@ end
     add_constraint_enforce_chronology_less_than_selected!(m::Model)
 """
 function add_constraint_enforce_chronology_less_than_selected!(m::Model)
-    @unpack selected, chronology = m.ext[:variables]
-    cons = m.ext[:constraints][:chronology_less_than_selected] = Dict()
+    @unpack selected, chronology = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:chronology_less_than_selected] = Dict()
     for w1 in window(), w2 in window()
         cons[w1,w2] = @constraint(
             m,
@@ -238,8 +238,8 @@ end
     add_constraint_single_weight!(m::Model)
 """
 function add_constraint_single_weight!(m::Model)
-    @unpack weight, selected = m.ext[:variables]
-    cons = m.ext[:constraints][:single_weight] = Dict()
+    @unpack weight, selected = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:single_weight] = Dict()
     rp = first(representative_period())
     for w in window()
         cons[w] = @constraint(
@@ -255,8 +255,8 @@ end
     add_constraint_link_weight_and_chronology!(m::Model)
 """
 function add_constraint_link_weight_and_chronology!(m::Model)
-    @unpack weight, chronology = m.ext[:variables]
-    cons = m.ext[:constraints][:link_weight_and_chronology] = Dict()
+    @unpack weight, chronology = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:link_weight_and_chronology] = Dict()
     for w2 in window()
         cons[w2] = @constraint(
             m,
@@ -271,8 +271,8 @@ end
     add_constraint_total_weight!(m::Model)
 """
 function add_constraint_total_weight!(m::Model)
-    @unpack weight = m.ext[:variables]
-    cons = m.ext[:constraints][:selected_periods]
+    @unpack weight = m.ext[:spineopt].variables
+    cons = m.ext[:spineopt].constraints[:selected_periods]
     rp = first(representative_period())
     cons = @constraint(
         m,

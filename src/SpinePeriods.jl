@@ -19,7 +19,7 @@
 
 module SpinePeriods
 
-using SpineOpt, SpineInterface, JuMP, Dates, URIs, JSON, UnPack
+using SpineOpt, SpineInterface, JuMP, Dates, URIs, JSON, UnPack, Cbc
 
 include("util.jl")
 include("preprocess_data_structure.jl")

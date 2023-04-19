@@ -19,7 +19,7 @@
 
 
 function postprocess_results!(m::Model, db_url, out_file, window__static_slice)
-    @unpack selected, weight = m.ext[:variables]
+    @unpack selected, weight = m.ext[:spineopt].variables
 
     objects = []
     object_parameters = []
@@ -48,11 +48,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice)
     msg = "Saved representative periods."
     if is_db_url(out_file)
         create_copy_db(db_url, out_file)
-        SpineOpt.import_data(
-            out_file,
-            d,
-            msg
-        )
+        import_data(out_file, d, msg)
     elseif is_json_file(out_file)
         open(out_file, "w") do f
             JSON.print(f, d, 4)
@@ -62,7 +58,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice)
 end
 
 function postprocess_ordering_results!(m::Model, db_url, out_file, window__static_slice)
-    @unpack selected, weight = m.ext[:variables]
+    @unpack selected, weight = m.ext[:spineopt].variables
     
     objects = []
     object_parameters = []
@@ -79,7 +75,7 @@ function postprocess_ordering_results!(m::Model, db_url, out_file, window__stati
 
     db_map = db_api.DiffDatabaseMapping(out_file; upgrade=true)
     chron = Dict(
-        (w1, w2) => value(m.ext[:variables][:chronology][w1,w2])
+        (w1, w2) => value(m.ext[:spineopt].variables[:chronology][w1,w2])
         for w1 in SpinePeriods.window(), w2 in SpinePeriods.window()
     )
     nonZero = findall(x -> x == 1, chron)
@@ -175,7 +171,7 @@ function add_representative_period_mapping!(
         window__static_slice
     )
     chron = Dict(
-        (w1, w2) => value(m.ext[:variables][:chronology][w1,w2])
+        (w1, w2) => value(m.ext[:spineopt].variables[:chronology][w1,w2])
         for w1 in SpinePeriods.window(), w2 in SpinePeriods.window()
     )
     nonZero = findall(x -> x == 1, chron)
