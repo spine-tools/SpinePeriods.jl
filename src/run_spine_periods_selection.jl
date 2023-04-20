@@ -8,7 +8,7 @@ Definitely works when choosing days in a year, but deviations from that (e.g. ch
 function run_spine_periods_selection(
         url_in::String,
         out_file::String;
-        with_optimizer=optimizer_with_attributes(Cbc.Optimizer, "logLevel" => 0, "ratioGap" => 0.01),
+        with_optimizer=optimizer_with_attributes(HiGHS.Optimizer, "output_flag" => false, "mip_rel_gap" => 0.01),
     )
     @info "Initializing model..."
     m = Model(with_optimizer)

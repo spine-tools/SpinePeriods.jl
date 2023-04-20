@@ -9,8 +9,8 @@ m = run_spine_periods(
     "sqlite:///$(sqlite_file).sqlite",
     "$(sqlite_file)_rps.json",
     with_optimizer=optimizer_with_attributes(
-        Cbc.Optimizer, "logLevel" => 1, "ratioGap" => 0.01,
-        "seconds" => 10
+        HiGHS.Optimizer, "output_flag" => true, "mip_rel_gap" => 0.01,
+        "time_limit" => 10
     )
 )
 

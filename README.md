@@ -30,7 +30,7 @@ db_url_out = sqlite:///<output_database>
 run_spine_periods(
     db_url,
     json_output, # replace this with `db_url_out` to write results to a database
-    with_optimizer=Cbc.Optimizer
+    with_optimizer=HiGHS.Optimizer
 )
 ```
 

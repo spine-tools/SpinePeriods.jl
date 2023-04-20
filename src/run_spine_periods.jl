@@ -9,8 +9,8 @@ Specifying which optimisation method can be done from, and can be either:
 """
 function run_spine_periods(url_in::String, out_file::String; 
         with_optimizer=optimizer_with_attributes(
-            Cbc.Optimizer, "logLevel" => 1, "ratioGap" => 0.01,
-            "seconds" => 60*10
+            HiGHS.Optimizer, "output_flag" => true, "mip_rel_gap" => 0.01,
+            "time_limit" => 60*10
         )
     )
     check_out_file(out_file)
