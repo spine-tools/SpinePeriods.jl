@@ -55,6 +55,7 @@ We define this as a new object class and copy into it all entities that have a `
 `unit__representative_period`, or `unit__node__representative_period` relationship.
 """
 function generate_resources()
+    rp = first(representative_period())
     u_pvals = Dict(
         Object(u.name, :resource) => Dict(
             :resource_availability => parameter_value(unit_availability_factor(unit=u)),
@@ -62,7 +63,7 @@ function generate_resources()
                 representative_period_weight(unit=u, representative_period=rp, _default=1)
             ),
         )
-        for (u, rp) in unit__representative_period()
+        for u in unit__representative_period(representative_period=rp,)
     )
     n_pvals = Dict(
         Object(n.name, :resource) => Dict(
@@ -71,7 +72,7 @@ function generate_resources()
                 representative_period_weight(node=n, representative_period=rp, _default=1)
             ),
         )
-        for (n, rp) in node__representative_period()
+        for n in node__representative_period(representative_period=rp,)
     )
     u_n_pvals = Dict(
         Object(Symbol(u.name, :__, n.name), :resource) => Dict(
@@ -80,7 +81,7 @@ function generate_resources()
                 representative_period_weight(unit=u, node=n, representative_period=rp, _default=1)
             ),
         )
-        for (u, n, rp) in unit__node__representative_period()
+        for (u, n) in unit__node__representative_period(representative_period=rp)
     )
     pvals = merge(u_pvals, n_pvals, u_n_pvals)
     resource = ObjectClass(:resource, collect(keys(pvals)), pvals)
@@ -116,7 +117,7 @@ function generate_distributions(m::Model)
     window__static_slice = Dict()
     ss_ts = Dict()
     for r in resource()
-        res_dist_horizon[r] = zeros(size(block(),1))
+        res_dist_horizon[r] = zeros(size(block(), 1))
         ts_max[r] = resource_availability(resource=r, t=first(time_slice(m)))
         ts_min[r] = ts_max[r]
     end
@@ -139,7 +140,6 @@ function generate_distributions(m::Model)
                 (ts_vals[r, ss_ts[t]] == nothing) && (ts_vals[r, ss_ts[t]] = 0)
                 (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
                 (ts_vals[r, ss_ts[t]] < ts_min[r]) && (ts_min[r] = ts_vals[r, ss_ts[t]])
-
                 # Also seperate values by resource, window and time slice
                 ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end

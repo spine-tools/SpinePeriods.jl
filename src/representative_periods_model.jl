@@ -43,9 +43,7 @@ function create_ordering_variables!(m)
         w => @variable(m, base_name="weight[$w]", lower_bound=0) for w in window()
     )
     m.ext[:spineopt].variables[:chronology] = Dict{Tuple,JuMP.VariableRef}(
-        (w1, w2) => @variable(m, base_name="chronology[$(w1), $(w2)]", binary=true)
-        for w1 in window()
-        for w2 in window()
+        (w1, w2) => @variable(m, base_name="chronology[$(w1), $(w2)]", binary=true) for w1 in window(), w2 in window()
     )
 end
 
@@ -57,7 +55,7 @@ Minimize the total error between target and representative distributions.
 function set_objective!(m::Model)
     @unpack d_error = m.ext[:spineopt].variables
     @objective(
-        m, Min, sum(representative_period_weight(resource=r) * sum(d_error[r, b] for b in block()) for r in resource())
+        m, Min, sum(representative_period_weight(resource=r) * sum(d_error[r, b] for b in block()), r in resource())
     )
 end
 
@@ -163,7 +161,7 @@ end
 """
 function add_constraint_enforce_chronology_less_than_selected!(m::Model)
     @unpack selected, chronology = m.ext[:spineopt].variables
-    m.ext[:spineopt].constraints[:chronology_less_than_selected] = Dict(
+    m.ext[:spineopt].constraints[:chronology_lower_than_selected] = Dict(
         (w1, w2) => @constraint(m, chronology[w1, w2] <= selected[w2]) for w1 in window(), w2 in window()
     )
 end
