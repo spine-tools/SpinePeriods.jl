@@ -6,16 +6,17 @@ function is_ordering_model()
     return representative_period_method(representative_period=first(representative_period())) == :representative_periods_ordering
 end
 
-function is_db_url(str::String)
-    return (isnothing(match(r".sqlite", str)) == false)
+function is_db_url(db_url::String)
+    db_url = run_request(db_url, "get_db_url")
+    return (isnothing(match(r".sqlite", db_url)) == false)
 end
 
-function is_json_file(str::String)
-    return (isnothing(match(r".json", str)) == false)
+function is_json_file(filepath::String)
+    return (isnothing(match(r".json", filepath)) == false)
 end
 
 function check_out_file(str::String)
-    if is_db_url(str) == false && is_json_file(str) == false
+    if !is_db_url(str) && !is_json_file(str)
         error("Output file $(str) extension must be .sqlite or .json.")
     end
 end

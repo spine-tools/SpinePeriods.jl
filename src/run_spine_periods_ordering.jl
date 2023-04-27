@@ -7,6 +7,7 @@ function run_spine_periods_ordering(
         url_in::String,
         out_file::String;
         with_optimizer=optimizer_with_attributes(HiGHS.Optimizer, "output_flag" => false, "mip_rel_gap" => 0.01),
+        alternative=""
     )
     @info "Initializing model..."
     m = Model(with_optimizer)
@@ -34,7 +35,7 @@ function run_spine_periods_ordering(
     optimize!(m)
     if termination_status(m) in (MOI.OPTIMAL, MOI.TIME_LIMIT)
         @info "Model solved. Termination status: $(termination_status(m))."
-        postprocess_results!(m, url_in, out_file, window__static_slice)
+        postprocess_results!(m, url_in, out_file, window__static_slice; alternative=alternative)
     else
         @info "Unable to find solution (reason: $(termination_status(m)))."
     end
