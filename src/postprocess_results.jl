@@ -109,7 +109,6 @@ function add_representative_period_mapping!(
     chron_map = Dict(
         w1 => w2 for w1 in window(), w2 in window() if value(m.ext[:spineopt].variables[:chronology][w1, w2]) == 1
     )
-    @show sort(collect(chron_map))
     periods = []
     for w in window()
         ss1 = window__static_slice[w][1]

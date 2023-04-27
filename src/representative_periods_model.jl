@@ -197,7 +197,7 @@ end
 """
 function add_constraint_total_weight!(m::Model)
     @unpack weight = m.ext[:spineopt].variables
-    m.ext[:spineopt].constraints[:selected_periods] = Dict(
+    m.ext[:spineopt].constraints[:total_weight] = Dict(
         m.ext[:spineopt].instance => @constraint(m, sum(weight[w] for w in window()) == length(window()))
     )
 end

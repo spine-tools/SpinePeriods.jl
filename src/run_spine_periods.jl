@@ -19,17 +19,9 @@ function run_spine_periods(
     @info "Reading database..."
     using_spinedb(url_in, SpineOpt; upgrade=true)
     if is_selection_model()
-        run_spine_periods_selection(
-            url_in, out_file,
-            with_optimizer=with_optimizer,
-            alternative=alternative
-        )
+        run_spine_periods_selection(url_in, out_file, with_optimizer=with_optimizer, alternative=alternative)
     elseif is_ordering_model()
-        run_spine_periods_ordering(
-            url_in, out_file,
-            with_optimizer=with_optimizer,
-            alternative=alternative
-        )
+        run_spine_periods_ordering(url_in, out_file, with_optimizer=with_optimizer, alternative=alternative)
     else
         error("Please specify an optimisation method in the Spine database.")
     end

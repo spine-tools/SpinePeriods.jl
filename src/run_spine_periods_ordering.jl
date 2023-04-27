@@ -31,5 +31,5 @@ function run_spine_periods_ordering(
     else
         @info "Unable to find solution (reason: $(termination_status(m)))."
     end
-    m, url_in, window__static_slice
+    m
 end
