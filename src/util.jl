@@ -1,18 +1,18 @@
 function is_selection_model()
-    return representative_period_method(representative_period=first(representative_period())) == :representative_periods
+    representative_period_method(representative_period=first(representative_period())) == :representative_periods
 end
 
 function is_ordering_model()
-    return representative_period_method(representative_period=first(representative_period())) == :representative_periods_ordering
+    representative_period_method(representative_period=first(representative_period())) == :representative_periods_ordering
 end
 
 function is_db_url(db_url::String)
     db_url = run_request(db_url, "get_db_url")
-    return (isnothing(match(r".sqlite", db_url)) == false)
+    (isnothing(match(r".sqlite", db_url)) == false)
 end
 
 function is_json_file(filepath::String)
-    return (isnothing(match(r".json", filepath)) == false)
+    (isnothing(match(r".json", filepath)) == false)
 end
 
 function check_out_file(str::String)
