@@ -22,7 +22,7 @@ Assuming you have a working SpineOpt database:
 1. Load the SpineOpt periods template from `src/representative_periods_template.json` into your SpineOpt database.
 1. Setup your `model` object; specify `model_start` and `model_end` as well as `roll_forward` - the latter determines the length of the periods that will be selected.
 1. Create a `representative_period` object (only one `representative_period` object is needed; if you create two or more, only one of them will be used and you wouldn't know which one.)
-1. Specify the value of the `representative_period_method` parameter for your `representative_period` object, wich determines the method for the representative periods model. Two values are possible:
+1. Specify the value of the `representative_period_method` parameter for your `representative_period` object, which determines the method for the representative periods model. Two values are possible:
     - `representative_periods` simply selects representative periods.
     - `representative_periods_ordering` also orders representative periods throughout the optimisation horizon so that long term storage arbitrage can be modeled (see [this section of the SpineOpt documentation](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/)).
 
