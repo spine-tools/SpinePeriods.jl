@@ -32,7 +32,7 @@ Assuming you have a working SpineOpt database:
     - `representative_periods` is the number of representative periods to be selected (and ordered).
     - `representative_blocks` is the discretisation level of the duration curves used for the `representative_periods_ordering` method, i.e. not relevant for the `representative_periods` method. Higher leads to more accuracy; lower reduces problem size and speeds up computation.
 
-1. Create `unit__representative_period`, `node__representative_period` and `unit__node__representative_period` relationships between your `representative_period` object, and the `unit`s and `node`s that you want to include in the representative periods model. The relationships you create determine the parameter values used to select (and order) representative periods according to the table below.
+1. Create `unit__representative_period`, `node__representative_period` and `unit__node__representative_period` relationships between your `representative_period` object, and the `unit`s and `node`s that you want to include in the representative periods model. The resources you include determine the parameter values used to select (and order) representative periods according to the table below.
 
     | relationship | parameter |
     | --- | --- |
