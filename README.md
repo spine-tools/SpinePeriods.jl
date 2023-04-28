@@ -55,7 +55,7 @@ Assuming you have a working SpineOpt database, do the following:
     )
     ```
 
-1. Let SpinePeriods cook. The output data will be a copy of the input with the following additions/modifications:
+1. Let SpinePeriods cook. The output database will be a copy of the input with the following additions/modifications:
 
     - One `temporal_block` object for each selected representative period will be created.
     - The value of `roll_forward` will be set to `null` (because in general, representative periods are more useful with non-rolling models).
