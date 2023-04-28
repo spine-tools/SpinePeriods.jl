@@ -57,9 +57,9 @@ Assuming you have a working SpineOpt database:
 
 1. Let SpinePeriods cook. The output database will be a copy of the input with the following additions/modifications:
 
-    - One `temporal_block` object for each selected representative period will be created.
     - The value of `roll_forward` will be set to `null` (because in general, representative periods are more useful with non-rolling models).
-    - Finally, if you selected the `representative_periods_ordering` method, then the value of the `representative_periods_mapping` parameter will be set for each `temporal_block` associated to the `unit`s and `node`s in your representative periods model (as per step 6 above), to a `map` value that [SpineOpt will like](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/).
+    - One `temporal_block` object for each selected representative period will be created. If you chose the `representative_periods_ordering` method, then these `temporal_block`s will also be associated to each `unit` and `node` in your representative periods model (see step 6 above) via `units_on__temporal_block` and `node__temporal_block`, respectively.
+    - Finally, if you selected the `representative_periods_ordering` method, then for each `temporal_block` *originally* associated to any `unit`s and `node`s in your representative periods model (see step 6 above), the value of the `representative_periods_mapping` parameter will be set to a `map` that [SpineOpt will like](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/).
 
     With the above, the database will be ready to be used with the representative periods implementation in SpineOpt.
 

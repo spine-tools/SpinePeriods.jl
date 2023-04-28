@@ -33,11 +33,13 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     add_representative_period_temporal_blocks!(
         objects, object_parameters, object_parameter_values, window__static_slice, windows, weight, res
     )
-    add_representative_period_relationships!(relationships, windows, represented_tblocks)
     remove_roll_forward!(object_parameter_values)
-    is_ordering_model() && add_representative_period_mapping!(
-        m, objects, object_parameters, object_parameter_values, window__static_slice, chron_map, represented_tblocks
-    )
+    if is_ordering_model()
+        add_representative_period_relationships!(relationships, windows, represented_tblocks)
+        add_representative_period_mapping!(
+            m, objects, object_parameters, object_parameter_values, window__static_slice, chron_map, represented_tblocks
+        )
+    end
     if !isempty(alternative)
         object_parameter_values = [(pv..., alternative) for pv in object_parameter_values]
     end
@@ -81,12 +83,34 @@ function _represented_temporal_blocks()
     unique(Iterators.flatten((n_tbs, u_tbs, un_tbs, default_tbs)))
 end
 
+function add_representative_period_temporal_blocks!(
+    objects, object_parameters, object_parameter_values, window__static_slice, windows, weight, res
+)
+    for w in windows
+        tb_name = string("rp_", w)
+        t_start = date_time_to_db(split(string(first(window__static_slice[w]).name), "~>")[1])
+        t_end = date_time_to_db(split(string(last(window__static_slice[w]).name), "~>")[2])
+        wt = JuMP.value(weight[w])
+        push!(objects, ("temporal_block", tb_name))
+        push!(object_parameter_values, ("temporal_block", tb_name, "block_start", t_start))
+        push!(object_parameter_values, ("temporal_block", tb_name, "block_end", t_end))
+        push!(object_parameter_values, ("temporal_block", tb_name, "resolution", unparse_db_value(res)))
+        push!(object_parameter_values, ("temporal_block", tb_name, "weight", wt))
+        @info "selected window: $(w) with start $(t_start["data"]) and weight $(wt)"
+    end
+end
+
 function add_representative_period_group!(objects, object_groups, windows)
     push!(objects, ("temporal_block", "all_representative_periods"))
     for w in windows
         tb_name = string("rp_", w)
         push!(object_groups, ("temporal_block", "all_representative_periods", tb_name))
     end
+end
+
+function remove_roll_forward!(object_parameter_values)
+    model_name = first(model()).name
+    push!(object_parameter_values, ("model", model_name, "roll_forward", nothing))
 end
 
 function add_representative_period_relationships!(relationships, windows, tblocks)
@@ -105,28 +129,6 @@ function add_representative_period_relationships!(relationships, windows, tblock
             relationships,
             [("units_on__temporal_block", (u.name, tb_name)) for u in units_on__temporal_block(temporal_block=tblocks)]
         )
-    end
-end
-
-function remove_roll_forward!(object_parameter_values)
-    model_name = first(model()).name
-    push!(object_parameter_values, ("model", model_name, "roll_forward", nothing))
-end
-
-function add_representative_period_temporal_blocks!(
-    objects, object_parameters, object_parameter_values, window__static_slice, windows, weight, res
-)
-    for w in windows
-        tb_name = string("rp_", w)
-        t_start = date_time_to_db(split(string(first(window__static_slice[w]).name), "~>")[1])
-        t_end = date_time_to_db(split(string(last(window__static_slice[w]).name), "~>")[2])
-        wt = JuMP.value(weight[w])
-        push!(objects, ("temporal_block", tb_name))
-        push!(object_parameter_values, ("temporal_block", tb_name, "block_start", t_start))
-        push!(object_parameter_values, ("temporal_block", tb_name, "block_end", t_end))
-        push!(object_parameter_values, ("temporal_block", tb_name, "resolution", unparse_db_value(res)))
-        push!(object_parameter_values, ("temporal_block", tb_name, "weight", wt))
-        @info "selected window: $(w) with start $(t_start["data"]) and weight $(wt)"
     end
 end
 
