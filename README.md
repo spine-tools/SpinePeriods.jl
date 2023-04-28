@@ -24,11 +24,11 @@ Assuming you have a working SpineOpt database, do the following:
 1. Create a `representative_period` object (only one `representative_period` object is needed; if you create two or more, only one of them will be used and you wouldn't know which one.)
 1. Specify the value of the `representative_period_method` parameter for your `representative_period` object, wich determines the method for the representative periods model. Two values are possible:
     - `representative_periods` simply selects representative periods.
-    - `representative_periods_ordering` also orders representative periods throughout the year so that long term storage arbitrage can be modeled (see [this section of the SpineOpt documentation](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/)).
+    - `representative_periods_ordering` also orders representative periods throughout the optimisation horizon so that long term storage arbitrage can be modeled (see [this section of the SpineOpt documentation](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/)).
 
     The two methods are described in [this working paper](https://www.mech.kuleuven.be/en/tme/research/energy-systems-integration-modeling/pdf-publications/wp-esim2021-1) where they are referred to as **ORDF** and **ORDO** respectively.
 
-1. Specify the value of `representative_periods` and `representative_blocks` for your `representative_period` object:
+1. Specify the value of the `representative_periods` and `representative_blocks` parameters for your `representative_period` object:
     - `representative_periods` is the number of representative periods to be selected (and ordered).
     - `representative_blocks` is the discretisation level of the duration curves used for the `representative_periods_ordering` method, i.e. not relevant for the `representative_periods` method. Higher leads to more accuracy; lower reduces problem size and speeds up computation.
 
@@ -45,12 +45,12 @@ Assuming you have a working SpineOpt database, do the following:
 
 1. You're ready to go! From Julia:
     ```julia
-    db_url = "sqlite:///<path_to_your_database>"
-    json_output = "<output_file>.json" 
-    db_url_out = "sqlite:///<output_database>"
+    db_url_in = "sqlite:///<path_to_your_input_database>"
+    db_url_out = "sqlite:///<path_to_your_output_database>"
+    json_out = "<path_to_your_output_file>.json" 
     run_spine_periods(
-        db_url,
-        json_output, # replace this with `db_url_out` to write results to a database
+        db_url_in,
+        db_url_out, # replace this with `json_out` to write results to a JSON file
         with_optimizer=HiGHS.Optimizer
     )
     ```
