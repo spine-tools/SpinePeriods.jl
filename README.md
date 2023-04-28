@@ -16,7 +16,7 @@ pkg"add SpinePeriods"
 
 ## Usage
 
-Assuming you have a working SpineOpt database, do the following:
+Assuming you have a working SpineOpt database:
 
 
 1. Load the SpineOpt periods template from `src/representative_periods_template.json` into your SpineOpt database.
