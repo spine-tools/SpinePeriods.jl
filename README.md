@@ -74,4 +74,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-SpineOpt is licensed under GNU Lesser General Public License version 3.0 or later.
+SpinePeriods is licensed under GNU Lesser General Public License version 3.0 or later.
