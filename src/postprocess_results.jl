@@ -33,9 +33,9 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     add_representative_period_temporal_blocks!(
         objects, object_parameters, object_parameter_values, window__static_slice, windows, weight, res
     )
+    remove_parameter_values!(object_parameter_values, represented_tblocks)
+    add_representative_period_relationships!(relationships, windows, represented_tblocks)
     if is_ordering_model()
-        remove_parameter_values!(object_parameter_values, represented_tblocks)
-        add_representative_period_relationships!(relationships, windows, represented_tblocks)
         add_representative_period_mapping!(
             m, objects, object_parameters, object_parameter_values, window__static_slice, chron_map, represented_tblocks
         )
