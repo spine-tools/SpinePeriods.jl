@@ -32,7 +32,7 @@ Assuming you have a working SpineOpt database:
     - `representative_periods` is the number of representative periods to be selected (and ordered).
     - `representative_blocks` is the discretisation level of the duration curves used for the `representative_periods_ordering` method, i.e. not relevant for the `representative_periods` method. Higher leads to more accuracy; lower reduces problem size and speeds up computation.
 
-1. Create `unit__representative_period`, `node__representative_period` and `unit__node__representative_period` relationships between your `representative_period` object, and the `unit`s and `node`s that you want to include in the representative periods model. The resources you include determine the parameter values used to select (and order) representative periods according to the table below.
+1. Create `unit__representative_period`, `node__representative_period` and `unit__node__representative_period` relationships between your `representative_period` object, and the `unit`s and `node`s that you want to include in the representative periods model. The relationships you create determine the parameter values used to select (and order) representative periods according to the table below.
 
     | relationship | parameter |
     | --- | --- |
@@ -58,8 +58,8 @@ Assuming you have a working SpineOpt database:
 1. Let SpinePeriods cook. The output database will be a copy of the input with the following additions/modifications:
 
     - The value of `roll_forward` will be set to `null` (because in general, representative periods are more useful with non-rolling models).
-    - One `temporal_block` object for each selected representative period will be created. If you chose the `representative_periods_ordering` method, then these `temporal_block`s will also be associated to each `unit` and `node` in your representative periods model (see step 6 above) via `units_on__temporal_block` and `node__temporal_block`, respectively.
-    - Finally, if you selected the `representative_periods_ordering` method, then for each `temporal_block` *originally* associated to any `unit`s and `node`s in your representative periods model (see step 6 above), the value of the `representative_periods_mapping` parameter will be set to a `map` that [SpineOpt will like](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/).
+    - One `temporal_block` object for each selected representative period will be created. If you chose the `representative_periods_ordering` method, then these `temporal_block`s will also be associated to each `unit` and `node` in your representative periods model (as per step 6 above) via `units_on__temporal_block` and `node__temporal_block`, respectively.
+    - Finally, if you selected the `representative_periods_ordering` method, then for each `temporal_block` *originally* associated to any `unit`s and `node`s in your representative periods model (as per step 6 above), the value of the `representative_periods_mapping` parameter will be set to a `map` that [SpineOpt will like](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/). Also, the value of `block_end` will be set to `null` for these `temporal_block`s.
 
     With the above, the database will be ready to be used with the representative periods implementation in SpineOpt.
 

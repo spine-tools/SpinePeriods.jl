@@ -33,8 +33,8 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     add_representative_period_temporal_blocks!(
         objects, object_parameters, object_parameter_values, window__static_slice, windows, weight, res
     )
-    remove_roll_forward!(object_parameter_values)
     if is_ordering_model()
+        remove_parameter_values!(object_parameter_values, represented_tblocks)
         add_representative_period_relationships!(relationships, windows, represented_tblocks)
         add_representative_period_mapping!(
             m, objects, object_parameters, object_parameter_values, window__static_slice, chron_map, represented_tblocks
@@ -108,9 +108,10 @@ function add_representative_period_group!(objects, object_groups, windows)
     end
 end
 
-function remove_roll_forward!(object_parameter_values)
+function remove_parameter_values!(object_parameter_values, tblocks)
     model_name = first(model()).name
     push!(object_parameter_values, ("model", model_name, "roll_forward", nothing))
+    append!(object_parameter_values, [("temporal_block", tb.name, "block_end", nothing) for tb in tblocks])
 end
 
 function add_representative_period_relationships!(relationships, windows, tblocks)
