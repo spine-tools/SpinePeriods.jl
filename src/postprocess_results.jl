@@ -139,7 +139,7 @@ function fix_parameter_values!(object_parameter_values, tblocks)
     i = 1
     while true
         rf = roll_forward(model=instance, i=i, _strict=false)
-        if iszero(rf) || isnothing(rf) || last_window_start + fr >= model_end(model=instance)
+        if isnothing(rf) || rf == Minute(0) || last_window_start + rf >= model_end(model=instance)
             break
         end
         last_window_start += rf

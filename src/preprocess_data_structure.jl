@@ -144,7 +144,7 @@ function generate_distributions(m::Model)
                 ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end
         end
-        roll_temporal_structure!(m) || break
+        roll_temporal_structure!(m, i_win) || break
         i_win += 1
     end
     window_time_interval = 100 / length(window__static_slice[first(window())])
