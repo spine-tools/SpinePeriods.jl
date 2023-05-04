@@ -169,11 +169,11 @@ function add_representative_period_relationships!(relationships, windows, tblock
             @info "added model__default_temporal_block relationship between $model_name and $tb_name"
         end
         for n in node__temporal_block(temporal_block=tblocks)
-            push!(relationships, [("node__temporal_block", (n.name, tb_name))])
+            push!(relationships, ("node__temporal_block", (n.name, tb_name)))
             @info "added node__temporal_block relationship between $(n.name) and $tb_name"
         end
         for u in units_on__temporal_block(temporal_block=tblocks)
-            append!(relationships, [("units_on__temporal_block", (u.name, tb_name))])
+            push!(relationships, ("units_on__temporal_block", (u.name, tb_name)))
             @info "added units_on__temporal_block relationship between $(u.name) and $tb_name"
         end
     end
