@@ -18,7 +18,7 @@
 #############################################################################
 
 function postprocess_results!(m::Model, db_url, out_file, window__static_slice; alternative="")
-    @unpack selected, weight, chronology = m.ext[:spineopt].variables
+    @unpack selected, weight = m.ext[:spineopt].variables
     objects = []
     relationships = []
     object_parameters = []
@@ -28,8 +28,11 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     if for_rolling(representative_period=first(representative_period()))
         setup_rolling_representative_periods!(object_parameter_values, selected_windows)
     else
-        chron_map = Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
-        windows = is_selection_model() ? selected_windows : unique(values(chron_map))
+        chron_map = if is_ordering_model()
+            @unpack chronology = m.ext[:spineopt].variables
+            Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
+        end
+        windows = is_ordering_model() ? unique(values(chron_map)) : selected_windows
         represented_tblocks = _represented_temporal_blocks()
         res = minimum(resolution(temporal_block=tb) for tb in represented_tblocks)
         add_representative_period_temporal_blocks!(
