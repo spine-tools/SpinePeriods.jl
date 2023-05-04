@@ -151,7 +151,7 @@ function fix_parameter_values!(object_parameter_values, tblocks)
         tb_end = block_end(temporal_block=tb)
         tb_end isa Period || continue
         tb_end += last_window_start
-        push!(object_parameter_values, ("temporal_block", tb.name, "block_end", tb_end))
+        push!(object_parameter_values, ("temporal_block", tb.name, "block_end", unparse_db_value(tb_end)))
         @info "set the value of block_end for $(tb.name) to $tb_end"
     end
 end
@@ -195,7 +195,8 @@ function add_representative_period_mapping!(
         object_parameter_values,
         [("temporal_block", tb.name, "representative_periods_mapping", ordering_parameter) for tb in tblocks]
     )
-    @info "added representative_periods_mapping parameter value to temporal blocks $tblocks"
+    tb_names = join(x.name for x in tblocks, ", ")
+    @info "added representative_periods_mapping parameter value to temporal blocks $tb_names)"
 end
 
 date_time_to_db(datetime_string) = Dict("type" => "date_time", "data" => datetime_string)
