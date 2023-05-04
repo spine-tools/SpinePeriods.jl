@@ -112,12 +112,12 @@ function add_representative_period_temporal_blocks!(
 )
     for w in windows
         tb_name = string("rp_", w)
-        tb_start = date_time_to_db(split(string(first(window__static_slice[w]).name), "~>")[1])
-        tb_end = date_time_to_db(split(string(last(window__static_slice[w]).name), "~>")[2])
+        tb_start = split(string(first(window__static_slice[w]).name), "~>")[1]
+        tb_end = split(string(last(window__static_slice[w]).name), "~>")[2]
         wt = JuMP.value(weight[w])
         push!(objects, ("temporal_block", tb_name))
-        push!(object_parameter_values, ("temporal_block", tb_name, "block_start", tb_start))
-        push!(object_parameter_values, ("temporal_block", tb_name, "block_end", tb_end))
+        push!(object_parameter_values, ("temporal_block", tb_name, "block_start", date_time_to_db(tb_start)))
+        push!(object_parameter_values, ("temporal_block", tb_name, "block_end", date_time_to_db(tb_end)))
         push!(object_parameter_values, ("temporal_block", tb_name, "resolution", unparse_db_value(res)))
         push!(object_parameter_values, ("temporal_block", tb_name, "weight", wt))
         @info "added temporal block $tb_name with start $tb_start, end $tb_end and weight $wt"
