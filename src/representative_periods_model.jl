@@ -55,7 +55,7 @@ Minimize the total error between target and representative distributions.
 function set_objective!(m::Model)
     @unpack d_error = m.ext[:spineopt].variables
     @objective(
-        m, Min, sum(representative_period_weight(resource=r) * sum(d_error[r, b] for b in block()), r in resource())
+        m, Min, sum(representative_period_weight(resource=r) * sum(d_error[r, b] for b in block()) for r in resource())
     )
 end
 
