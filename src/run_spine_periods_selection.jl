@@ -19,7 +19,6 @@ function run_spine_periods_selection(
     generate_temporal_structure!(m)
     @info "Preprocessing data structure..."
     window__static_slice = preprocess_data_structure(m)
-    m = Model(with_optimizer)
     create_variables!(m)
     set_objective!(m)
     add_constraint_error1!(m)
