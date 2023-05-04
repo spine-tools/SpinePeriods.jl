@@ -78,7 +78,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
 end
 
 function setup_rolling_representative_periods!(object_parameter_values, selected_windows)
-    w_starts = sort(DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) for w in windows)
+    w_starts = sort(DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) for w in selected_windows)
     rf = [w_starts[i] - w_starts[i - 1] for i in 2:length(w_starts)]
     m_start = popfirst!(w_starts)
     instance = first(model())
