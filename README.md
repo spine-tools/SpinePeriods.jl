@@ -59,7 +59,7 @@ Assuming you have a working SpineOpt database:
 
     - One `temporal_block` object for each selected representative period will be created. These `temporal_block`s will also be associated to each `unit` and `node` in your representative periods model (as per step 6 above) via `units_on__temporal_block` and `node__temporal_block`, respectively.
     - The value of `roll_forward` will be set to `null` (because in general, representative periods are more useful with non-rolling models).
-    - For each `temporal_block` *originally* associated to any `unit`s and `node`s in your representative periods model (as per step 6 above), the value of `block_end` will be set to `null`.
+    - For each `temporal_block` *originally* associated to any `unit`s and `node`s in your representative periods model (as per step 6 above), if the value of `block_end` is a duration then it will be adjusted to reflect the fact that the model won't be rolling anymore.
     - Finally, if you selected the `representative_periods_ordering` method, then for each `temporal_block` *originally* associated to any `unit`s and `node`s in your representative periods model (as per step 6 above), the value of the `representative_periods_mapping` parameter will be set to a `map` that [SpineOpt will like](https://spine-tools.github.io/SpineOpt.jl/latest/advanced_concepts/representative_days_w_seasonal_storage/).
 
     With the above, the database will be ready to be used with the representative periods implementation in SpineOpt.
