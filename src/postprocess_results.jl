@@ -151,7 +151,7 @@ function fix_parameter_values!(object_parameter_values, tblocks)
         tb_end = block_end(temporal_block=tb)
         tb_end isa Period || continue
         tb_end += last_window_start
-        push!(object_parameter_values, [("temporal_block", tb.name, "block_end", tb_end)])
+        push!(object_parameter_values, ("temporal_block", tb.name, "block_end", tb_end))
         @info "set the value of block_end for $(tb.name) to $tb_end"
     end
 end
