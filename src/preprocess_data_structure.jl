@@ -223,7 +223,7 @@ function run_checks_pre()
         "please define `roll_forward` parameter for `$(model_instance)` ",
         "- this determines the length of a representative period"
     )
-    isnothing(roll_forward(model=model_instance)) && error(err_msg)
+    isnothing(roll_forward(model=model_instance, _strict=false)) && error(err_msg)
 end
 
 function run_checks_post()

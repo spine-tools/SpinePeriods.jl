@@ -26,21 +26,16 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     object_groups = []
     selected_windows = [w for w in window() if isapprox(JuMP.value(selected[w]), 1)]
     if for_rolling(representative_period=first(representative_period()))
-        setup_rolling_representative_periods!(object_parameter_values, selected_windows)
+        setup_rolling_representative_periods!(object_parameters, object_parameter_values, selected_windows)
     else
-        chron_map = if is_ordering_model()
-            @unpack chronology = m.ext[:spineopt].variables
-            Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
-        end
-        windows = is_ordering_model() ? unique(values(chron_map)) : selected_windows
         represented_tblocks = _represented_temporal_blocks()
         res = minimum(resolution(temporal_block=tb) for tb in represented_tblocks)
         add_representative_period_temporal_blocks!(
-            objects, object_parameters, object_parameter_values, window__static_slice, windows, weight, res
+            objects, object_parameters, object_parameter_values, window__static_slice, selected_windows, weight, res
         )
-        add_representative_period_group!(objects, object_groups, windows)
+        add_representative_period_group!(objects, object_groups, selected_windows)
         fix_parameter_values!(object_parameter_values, represented_tblocks)
-        add_representative_period_relationships!(relationships, windows, represented_tblocks)
+        add_representative_period_relationships!(relationships, selected_windows, represented_tblocks)
         if is_ordering_model()
             add_representative_period_mapping!(
                 m,
@@ -48,7 +43,6 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
                 object_parameters,
                 object_parameter_values,
                 window__static_slice,
-                chron_map,
                 represented_tblocks
             )
         end
@@ -77,15 +71,20 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     @info "representative periods saved"
 end
 
-function setup_rolling_representative_periods!(object_parameter_values, selected_windows)
+function setup_rolling_representative_periods!(object_parameters, object_parameter_values, selected_windows)
+    instance = first(model())
     w_starts = sort!([DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) for w in selected_windows])
     rf = [w_starts[i] - w_starts[i - 1] for i in 2:length(w_starts)]
     m_start = popfirst!(w_starts)
-    instance = first(model())
+    w_duration = @isdefined(window_duration) ? window_duration(model=instance, _strict=false) : nothing
+    w_duration = w_duration === nothing ? roll_forward(model=instance) : w_duration
     push!(object_parameter_values, ("model", instance.name, "model_start", unparse_db_value(m_start)))
     push!(object_parameter_values, ("model", instance.name, "roll_forward", unparse_db_value(rf)))
+    push!(object_parameter_values, ("model", instance.name, "window_duration", unparse_db_value(w_duration)))
+    push!(object_parameters, ("model", "window_duration"))
     @info "set the value of model_start for $(instance.name) to $m_start"
     @info "set the value of roll_forward for $(instance.name) to $rf"
+    @info "set the value of window_duration for $(instance.name) to $w_duration"
 end
 
 function _represented_temporal_blocks()
@@ -151,7 +150,7 @@ function fix_parameter_values!(object_parameter_values, tblocks)
         tb_end = block_end(temporal_block=tb)
         tb_end isa Period || continue
         tb_end += last_window_start
-        push!(object_parameter_values, ("temporal_block", tb.name, "block_end", tb_end))
+        push!(object_parameter_values, ("temporal_block", tb.name, "block_end", unparse_db_value(tb_end)))
         @info "set the value of block_end for $(tb.name) to $tb_end"
     end
 end
@@ -180,10 +179,13 @@ function add_representative_period_relationships!(relationships, windows, tblock
 end
 
 function add_representative_period_mapping!(
-    m, objects, object_parameters, object_parameter_values, window__static_slice, chron_map, tblocks
+    m, objects, object_parameters, object_parameter_values, window__static_slice, tblocks
 )
+    @unpack chronology = m.ext[:spineopt].variables
+    chron_map = Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
     periods = []
-    for (w1, w2) in chron_map
+    for w1 in window()
+        w2 = chron_map[w1]
         ss1 = window__static_slice[w1][1]
         ss1_start = string(rstrip(split(string(ss1.name), "~>")[1]))
         ss2 = string("rp_", w2)
@@ -195,7 +197,8 @@ function add_representative_period_mapping!(
         object_parameter_values,
         [("temporal_block", tb.name, "representative_periods_mapping", ordering_parameter) for tb in tblocks]
     )
-    @info "added representative_periods_mapping parameter value to temporal blocks $tblocks"
+    tb_names = join((x.name for x in tblocks), ", ")
+    @info "added representative_periods_mapping parameter value to temporal blocks $tb_names)"
 end
 
 date_time_to_db(datetime_string) = Dict("type" => "date_time", "data" => datetime_string)
