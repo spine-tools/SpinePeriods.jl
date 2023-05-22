@@ -213,8 +213,8 @@ function generate_distributions(m::Model)
         resource_distribution_window = $resource_distribution_window
         resource__window__static_slice = $resource__window__static_slice
         resource_availability_window_static_slice = $resource_availability_window_static_slice
-        window__static_slice = $window__static_slice # ???
     end
+    window__static_slice
 end
 
 function run_checks_pre()
