@@ -95,7 +95,7 @@ function _represented_temporal_blocks()
         for tb in node__temporal_block(node=members(n))
     )
     u_tbs = (
-        tb for n in unit__representative_period(representative_period=rp) for tb in units_on__temporal_block(unit=u)
+        tb for u in unit__representative_period(representative_period=rp) for tb in units_on__temporal_block(unit=u)
     )
     un_tbs = (
         tb
