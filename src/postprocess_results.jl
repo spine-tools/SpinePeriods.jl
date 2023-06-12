@@ -26,7 +26,9 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     object_groups = []
     selected_windows = [w for w in window() if isapprox(JuMP.value(selected[w]), 1)]
     if for_rolling(representative_period=first(representative_period()))
-        setup_rolling_representative_periods!(object_parameters, object_parameter_values, selected_windows)
+        setup_rolling_representative_periods!(
+            object_parameters, object_parameter_values, window__static_slice, selected_windows
+        )
     else
         represented_tblocks = _represented_temporal_blocks()
         res = minimum(resolution(temporal_block=tb) for tb in represented_tblocks)
@@ -71,7 +73,9 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     @info "representative periods saved"
 end
 
-function setup_rolling_representative_periods!(object_parameters, object_parameter_values, selected_windows)
+function setup_rolling_representative_periods!(
+    object_parameters, object_parameter_values, window__static_slice, selected_windows
+)
     instance = first(model())
     w_starts = sort!([DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) for w in selected_windows])
     rf = [w_starts[i] - w_starts[i - 1] for i in 2:length(w_starts)]
