@@ -82,10 +82,10 @@ function setup_rolling_representative_periods!(
     )
     w_starts = sort!(collect(keys(window_by_start)))
     rf = [w_starts[i] - w_starts[i - 1] for i in 2:length(w_starts)]
+    ww = [JuMP.value(weight[window_by_start[start]]) for start in w_starts]
     m_start = popfirst!(w_starts)
     w_duration = @isdefined(window_duration) ? window_duration(model=instance, _strict=false) : nothing
     w_duration = w_duration === nothing ? roll_forward(model=instance) : w_duration
-    ww = [JuMP.value(weight[window_by_start[start]]) for start in w_starts]
     push!(object_parameter_values, ("model", instance.name, "model_start", unparse_db_value(m_start)))
     push!(object_parameter_values, ("model", instance.name, "roll_forward", unparse_db_value(rf)))
     push!(object_parameter_values, ("model", instance.name, "window_weight", unparse_db_value(ww)))
