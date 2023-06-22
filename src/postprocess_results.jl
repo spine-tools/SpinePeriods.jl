@@ -27,7 +27,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     selected_windows = [w for w in window() if isapprox(JuMP.value(selected[w]), 1)]
     if for_rolling(representative_period=first(representative_period()))
         setup_rolling_representative_periods!(
-            object_parameters, object_parameter_values, window__static_slice, selected_windows
+            object_parameters, object_parameter_values, window__static_slice, selected_windows, weight
         )
     else
         represented_tblocks = _represented_temporal_blocks()
@@ -74,18 +74,24 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
 end
 
 function setup_rolling_representative_periods!(
-    object_parameters, object_parameter_values, window__static_slice, selected_windows
+    object_parameters, object_parameter_values, window__static_slice, selected_windows, weight
 )
     instance = first(model())
-    w_starts = sort!([DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) for w in selected_windows])
+    window_by_start = Dict(
+        DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) => w for w in selected_windows
+    )
+    w_starts = sort!(collect(keys(window_by_start)))
     rf = [w_starts[i] - w_starts[i - 1] for i in 2:length(w_starts)]
     m_start = popfirst!(w_starts)
     w_duration = @isdefined(window_duration) ? window_duration(model=instance, _strict=false) : nothing
     w_duration = w_duration === nothing ? roll_forward(model=instance) : w_duration
+    ww = [JuMP.value(weight[window_by_start[start]]) for start in w_starts]
     push!(object_parameter_values, ("model", instance.name, "model_start", unparse_db_value(m_start)))
     push!(object_parameter_values, ("model", instance.name, "roll_forward", unparse_db_value(rf)))
+    push!(object_parameter_values, ("model", instance.name, "window_weight", unparse_db_value(ww)))
     push!(object_parameter_values, ("model", instance.name, "window_duration", unparse_db_value(w_duration)))
     push!(object_parameters, ("model", "window_duration"))
+    push!(object_parameters, ("model", "window_weight"))
     @info "set the value of model_start for $(instance.name) to $m_start"
     @info "set the value of roll_forward for $(instance.name) to $rf"
     @info "set the value of window_duration for $(instance.name) to $w_duration"
