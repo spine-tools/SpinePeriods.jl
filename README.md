@@ -47,6 +47,7 @@ Assuming you have a working SpineOpt database:
 
 1. You're ready to go! From Julia:
     ```julia
+    using SpinePeriods
     db_url_in = "sqlite:///<path_to_your_input_database>"
     db_url_out = "sqlite:///<path_to_your_output_database>"
     json_out = "<path_to_your_output_file>.json" 
