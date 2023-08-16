@@ -54,7 +54,9 @@ Assuming you have a working SpineOpt database:
     run_spine_periods(
         db_url_in,
         db_url_out, # replace this with `json_out` to write results to a JSON file
-        with_optimizer=HiGHS.Optimizer
+        with_optimizer=optimizer_with_attributes(
+            HiGHS.Optimizer, "output_flag" => true, "mip_rel_gap" => 0.01, "time_limit" => 600.0        
+        )
     )
     ```
 
