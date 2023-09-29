@@ -137,7 +137,7 @@ function generate_distributions(m::Model)
             res_dist_window[r, w] = zeros(length(block()))
             for t in time_slice(m)
                 ts_vals[r, ss_ts[t]] = resource_availability(resource=r, t=t)
-                (ts_vals[r, ss_ts[t]] == nothing) && (ts_vals[r, ss_ts[t]] = 0)
+                (ts_vals[r, ss_ts[t]] == nothing || isnan(ts_vals[r, ss_ts[t]])) && (ts_vals[r, ss_ts[t]] = 0)
                 (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
                 (ts_vals[r, ss_ts[t]] < ts_min[r]) && (ts_min[r] = ts_vals[r, ss_ts[t]])
                 # Also seperate values by resource, window and time slice
@@ -213,8 +213,8 @@ function generate_distributions(m::Model)
         resource_distribution_window = $resource_distribution_window
         resource__window__static_slice = $resource__window__static_slice
         resource_availability_window_static_slice = $resource_availability_window_static_slice
-        window__static_slice = $window__static_slice # ???
     end
+    window__static_slice
 end
 
 function run_checks_pre()

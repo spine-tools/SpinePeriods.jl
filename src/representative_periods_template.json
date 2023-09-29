@@ -20,7 +20,7 @@
         ["representative_period", "optimisation_gap", 0.01, null],
         ["representative_period", "representative_blocks", null, null],
         ["representative_period", "representative_periods", null, null],
-        ["representative_period", "representative_period_method", "representative_periods", "representative_period_method_list"]
+        ["representative_period", "representative_period_method", "representative_periods", "representative_period_method_list"],
         ["representative_period", "for_rolling", false, "boolean_value_list"]
     ],
     "relationship_parameters": [
