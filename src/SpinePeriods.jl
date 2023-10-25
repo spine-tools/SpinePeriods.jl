@@ -21,6 +21,9 @@ module SpinePeriods
 
 using SpineOpt, SpineInterface, JuMP, Dates, URIs, JSON, UnPack, HiGHS
 
+# Resolve JuMP and SpineInterface `Parameter` and `parameter_value` conflicts.
+import SpineInterface: Parameter, parameter_value
+
 include("util.jl")
 include("preprocess_data_structure.jl")
 include("representative_periods_model.jl")
