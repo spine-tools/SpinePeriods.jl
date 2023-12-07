@@ -12,10 +12,7 @@ function _load_test_data_without_template(db_url, test_data)
     SpineInterface.import_data(db_url, "No comments"; test_data...)
 end
 
-function _test_data(period_count, method, for_rolling)
-	m_start = DateTime(2017)
-	m_end = DateTime(2018)
-	rf = Week(4)
+function _test_data(m_start, m_end, rf, rps, method, for_rolling)
 	res = Week(1)
 	indices = collect(m_start:res:m_end)
 	cycle = collect(1:100)
@@ -35,7 +32,7 @@ function _test_data(period_count, method, for_rolling)
 		],
 		:object_parameter_values => [
 			("representative_period", "rp", "representative_period_method", method),
-			("representative_period", "rp", "representative_periods", period_count),
+			("representative_period", "rp", "representative_periods", rps),
 			("representative_period", "rp", "for_rolling", for_rolling),
 			("representative_period", "rp", "representative_blocks", 40),
 			("model", "spine_periods", "model_start", unparse_db_value(m_start)),
@@ -49,8 +46,11 @@ end
 
 function _run_spine_periods_selection()
 	url_in = "sqlite://"
+	m_start = DateTime(2017)
+	m_end = DateTime(2018)
+	rf = Week(4)	
 	rps = 12
-	test_data = _test_data(rps, "representative_periods", false)
+	test_data = _test_data(m_start, m_end, rf, rps, "representative_periods", false)
 	_load_test_data(url_in, test_data)
 	fp_out = "deleteme.sqlite"
 	url_out = "sqlite:///$fp_out"
@@ -60,31 +60,31 @@ function _run_spine_periods_selection()
 	using_spinedb(url_out, Y)
 	exp_res = Day(7)
 	exp_start_end = Dict(
-		:rp_W5 => (DateTime("2017-04-23T00:00:00"), DateTime("2017-05-21T00:00:00")),
-		:rp_W4 => (DateTime("2017-03-26T00:00:00"), DateTime("2017-04-23T00:00:00")),
-		:rp_W9 => (DateTime("2017-08-13T00:00:00"), DateTime("2017-09-10T00:00:00")),
-		:rp_W11 => (DateTime("2017-10-08T00:00:00"), DateTime("2017-11-05T00:00:00")),
-		:rp_W8 => (DateTime("2017-07-16T00:00:00"), DateTime("2017-08-13T00:00:00")),
-		:rp_W6 => (DateTime("2017-05-21T00:00:00"), DateTime("2017-06-18T00:00:00")),
-		:rp_W10 => (DateTime("2017-09-10T00:00:00"), DateTime("2017-10-08T00:00:00")),
 		:rp_W1 => (DateTime("2017-01-01T00:00:00"), DateTime("2017-01-29T00:00:00")),
-		:rp_W12 => (DateTime("2017-11-05T00:00:00"), DateTime("2017-12-03T00:00:00")),
-		:rp_W7 => (DateTime("2017-06-18T00:00:00"), DateTime("2017-07-16T00:00:00")),
 		:rp_W3 => (DateTime("2017-02-26T00:00:00"), DateTime("2017-03-26T00:00:00")),
+		:rp_W4 => (DateTime("2017-03-26T00:00:00"), DateTime("2017-04-23T00:00:00")),
+		:rp_W5 => (DateTime("2017-04-23T00:00:00"), DateTime("2017-05-21T00:00:00")),
+		:rp_W6 => (DateTime("2017-05-21T00:00:00"), DateTime("2017-06-18T00:00:00")),
+		:rp_W7 => (DateTime("2017-06-18T00:00:00"), DateTime("2017-07-16T00:00:00")),
+		:rp_W8 => (DateTime("2017-07-16T00:00:00"), DateTime("2017-08-13T00:00:00")),
+		:rp_W9 => (DateTime("2017-08-13T00:00:00"), DateTime("2017-09-10T00:00:00")),
+		:rp_W10 => (DateTime("2017-09-10T00:00:00"), DateTime("2017-10-08T00:00:00")),
+		:rp_W11 => (DateTime("2017-10-08T00:00:00"), DateTime("2017-11-05T00:00:00")),
+		:rp_W12 => (DateTime("2017-11-05T00:00:00"), DateTime("2017-12-03T00:00:00")),
 		:rp_W13 => (DateTime("2017-12-03T00:00:00"), DateTime("2017-12-31T00:00:00")),
 	)
 	exp_weight = Dict(
-		:rp_W5 => 1.0370370370367956,
+		:rp_W1 => 2.4999999999999867,
+		:rp_W3 => 1.3333333333333466,
 		:rp_W4 => 0.8888888888888877,
+		:rp_W5 => 1.0370370370367956,
+		:rp_W6 => 0.9876543209881475,
+		:rp_W7 => 1.004115226337116,
+		:rp_W8 => 0.998628257887626,
 		:rp_W9 => 1.0004572473707893,
 		:rp_W11 => 1.0000762078951393,
-		:rp_W8 => 0.998628257887626,
-		:rp_W6 => 0.9876543209881475,
 		:rp_W10 => 0.9998475842097362,
-		:rp_W1 => 2.4999999999999867,
 		:rp_W12 => 0.9998475842097077,
-		:rp_W7 => 1.004115226337116,
-		:rp_W3 => 1.3333333333333466,
 		:rp_W13 => 1.2501143118427198,
 	)
 	repr_blocks = [tb for tb in Y.temporal_block() if !(tb.name in (:all_representative_periods, :year2017))]
@@ -98,8 +98,11 @@ end
 
 function _run_spine_periods_ordering()
 	url_in = "sqlite://"
+	m_start = DateTime(2017)
+	m_end = DateTime(2018)
+	rf = Week(4)	
 	rps = 12
-	test_data = _test_data(rps, "representative_periods_ordering", false)
+	test_data = _test_data(m_start, m_end, rf, rps, "representative_periods_ordering", false)
 	_load_test_data(url_in, test_data)
 	fp_out = "deleteme.sqlite"
 	url_out = "sqlite:///$fp_out"
@@ -109,32 +112,32 @@ function _run_spine_periods_ordering()
 	using_spinedb(url_out, Y)
 	exp_res = Day(7)
 	exp_start_end = Dict(
-		:rp_W5 => (DateTime("2017-04-23T00:00:00"), DateTime("2017-05-21T00:00:00")),
-		:rp_W4 => (DateTime("2017-03-26T00:00:00"), DateTime("2017-04-23T00:00:00")),
-		:rp_W14 => (DateTime("2017-12-31T00:00:00"), DateTime("2018-01-28T00:00:00")),
-		:rp_W11 => (DateTime("2017-10-08T00:00:00"), DateTime("2017-11-05T00:00:00")),
-		:rp_W2 => (DateTime("2017-01-29T00:00:00"), DateTime("2017-02-26T00:00:00")),
-		:rp_W8 => (DateTime("2017-07-16T00:00:00"), DateTime("2017-08-13T00:00:00")),
-		:rp_W6 => (DateTime("2017-05-21T00:00:00"), DateTime("2017-06-18T00:00:00")),
-		:rp_W10 => (DateTime("2017-09-10T00:00:00"), DateTime("2017-10-08T00:00:00")),
 		:rp_W1 => (DateTime("2017-01-01T00:00:00"), DateTime("2017-01-29T00:00:00")),
-		:rp_W12 => (DateTime("2017-11-05T00:00:00"), DateTime("2017-12-03T00:00:00")),
+		:rp_W2 => (DateTime("2017-01-29T00:00:00"), DateTime("2017-02-26T00:00:00")),
+		:rp_W4 => (DateTime("2017-03-26T00:00:00"), DateTime("2017-04-23T00:00:00")),
+		:rp_W5 => (DateTime("2017-04-23T00:00:00"), DateTime("2017-05-21T00:00:00")),
+		:rp_W6 => (DateTime("2017-05-21T00:00:00"), DateTime("2017-06-18T00:00:00")),
 		:rp_W7 => (DateTime("2017-06-18T00:00:00"), DateTime("2017-07-16T00:00:00")),
+		:rp_W8 => (DateTime("2017-07-16T00:00:00"), DateTime("2017-08-13T00:00:00")),
+		:rp_W10 => (DateTime("2017-09-10T00:00:00"), DateTime("2017-10-08T00:00:00")),
+		:rp_W11 => (DateTime("2017-10-08T00:00:00"), DateTime("2017-11-05T00:00:00")),
+		:rp_W12 => (DateTime("2017-11-05T00:00:00"), DateTime("2017-12-03T00:00:00")),
 		:rp_W13 => (DateTime("2017-12-03T00:00:00"), DateTime("2017-12-31T00:00:00")),
+		:rp_W14 => (DateTime("2017-12-31T00:00:00"), DateTime("2018-01-28T00:00:00")),
 	)
 	exp_weight = Dict(
-		:rp_W5 => 1,
-		:rp_W4 => 1,
-		:rp_W14 => 1,
-		:rp_W11 => 1,
-		:rp_W2 => 2,
-		:rp_W8 => 2,
-		:rp_W6 => 1,
-		:rp_W10 => 1,
 		:rp_W1 => 1,
-		:rp_W12 => 1,
+		:rp_W2 => 2,
+		:rp_W4 => 1,
+		:rp_W5 => 1,
+		:rp_W6 => 1,
 		:rp_W7 => 1,
+		:rp_W8 => 2,
+		:rp_W10 => 1,
+		:rp_W11 => 1,
+		:rp_W12 => 1,
 		:rp_W13 => 1,
+		:rp_W14 => 1,
 	)
 	repr_blocks = [tb for tb in Y.temporal_block() if !(tb.name in (:all_representative_periods, :year2017))]
 	@test length(repr_blocks) == rps
@@ -147,8 +150,11 @@ end
 
 function _run_spine_periods_ordering_for_rolling()
 	url_in = "sqlite://"
+	m_start = DateTime(2017)
+	m_end = DateTime(2018)
+	rf = Week(4)	
 	rps = 12
-	test_data = _test_data(rps, "representative_periods_ordering", true)
+	test_data = _test_data(m_start, m_end, rf, rps, "representative_periods_ordering", true)
 	_load_test_data(url_in, test_data)
 	fp_out = "deleteme.sqlite"
 	url_out = "sqlite:///$fp_out"
@@ -158,13 +164,28 @@ function _run_spine_periods_ordering_for_rolling()
 	using_spinedb(url_out, Y)
 	exp_m_start = DateTime("2017-01-01T00:00:00")
 	exp_rf = [Week(4), Week(8), Week(4), Week(4), Week(4), Week(4), Week(8), Week(4), Week(4), Week(4), Week(4)]
-	exp_w_starts= cumsum([exp_m_start; exp_rf])
-	exp_rps = [:rp_W1, :rp_W2, :rp_W4, :rp_W5, :rp_W6, :rp_W7, :rp_W8, :rp_W10, :rp_W11, :rp_W12, :rp_W13, :rp_W14]
+	exp_w_starts = collect(m_start:rf:m_end)
+	exp_repr_w_starts = [
+		DateTime("2017-01-01T00:00:00"),
+		DateTime("2017-01-29T00:00:00"),
+		DateTime("2017-01-29T00:00:00"),
+		DateTime("2017-03-26T00:00:00"),
+		DateTime("2017-04-23T00:00:00"),
+		DateTime("2017-05-21T00:00:00"),
+		DateTime("2017-06-18T00:00:00"),
+		DateTime("2017-07-16T00:00:00"),
+		DateTime("2017-07-16T00:00:00"),
+		DateTime("2017-09-10T00:00:00"),
+		DateTime("2017-10-08T00:00:00"),
+		DateTime("2017-11-05T00:00:00"),
+		DateTime("2017-12-03T00:00:00"),
+		DateTime("2017-12-31T00:00:00"),
+	]
 	@test Y.model_start(model=first(Y.model())) == exp_m_start
 	@test Y.roll_forward(model=first(Y.model())) == exp_rf
 	@test Y.window_duration(model=first(Y.model())) == Week(4)
-	for (w_start, rp) in zip(exp_w_starts, exp_rps)
-		@test Y.representative_periods_mapping(model=first(Y.model()), d=w_start) == rp
+	for (w_start, repr_w_start) in zip(exp_w_starts, exp_repr_w_starts)
+		@test Y.representative_windows_mapping(model=first(Y.model()), d=w_start) == repr_w_start
 	end
 end
 
