@@ -29,6 +29,9 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
         setup_rolling_representative_periods!(
             object_parameters, object_parameter_values, window__static_slice, selected_windows, weight
         )
+        if is_ordering_model()
+            add_representative_period_mapping!(m, object_parameters, object_parameter_values, window__static_slice)
+        end
     else
         represented_tblocks = _represented_temporal_blocks()
         res = minimum(resolution(temporal_block=tb) for tb in represented_tblocks)
@@ -40,12 +43,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
         add_representative_period_relationships!(relationships, selected_windows, represented_tblocks)
         if is_ordering_model()
             add_representative_period_mapping!(
-                m,
-                objects,
-                object_parameters,
-                object_parameter_values,
-                window__static_slice,
-                represented_tblocks
+                m, object_parameters, object_parameter_values, window__static_slice, represented_tblocks
             )
         end
     end
@@ -188,9 +186,7 @@ function add_representative_period_relationships!(relationships, windows, tblock
     end
 end
 
-function add_representative_period_mapping!(
-    m, objects, object_parameters, object_parameter_values, window__static_slice, tblocks
-)
+function _representative_period_mapping(m, window__static_slice)
     @unpack chronology = m.ext[:spineopt].variables
     chron_map = Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
     periods = []
@@ -201,11 +197,25 @@ function add_representative_period_mapping!(
         ss2 = string("rp_", w2)
         push!(periods, [ss1_start, ss2])
     end
-    ordering_parameter = map_to_db(periods)
+    map_to_db(periods)
+end
+
+function add_representative_period_mapping!(m, object_parameters, object_parameter_values, window__static_slice)
+    rp_mapping = _representative_period_mapping(m, window__static_slice)
+    m_name = m.ext[:spineopt].instance.name
+    push!(object_parameters, ("model", "representative_periods_mapping"))
+    push!(object_parameter_values, ("model", m_name, "representative_periods_mapping", rp_mapping))
+    @info "added representative_periods_mapping parameter value to model $m_name)"
+end
+
+function add_representative_period_mapping!(
+    m, object_parameters, object_parameter_values, window__static_slice, tblocks
+)
+    rp_mapping = _representative_period_mapping(m, window__static_slice)
     push!(object_parameters, ("temporal_block", "representative_periods_mapping"))
     append!(
         object_parameter_values,
-        [("temporal_block", tb.name, "representative_periods_mapping", ordering_parameter) for tb in tblocks]
+        [("temporal_block", tb.name, "representative_periods_mapping", rp_mapping) for tb in tblocks]
     )
     tb_names = join((x.name for x in tblocks), ", ")
     @info "added representative_periods_mapping parameter value to temporal blocks $tb_names)"
