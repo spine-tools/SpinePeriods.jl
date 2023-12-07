@@ -25,15 +25,17 @@ function _run_spine_periods_selection()
 	values = repeat(cycle, cycle_count)
 	demand_ts = TimeSeries(indices, values)
 	test_data = Dict(
-		:entities => [
+		:objects => [
 			("model", "spine_periods"),
 			("representative_period", "rp"),
 			("temporal_block", "year2017"),
 			("node", "electricity"),
+		],
+		:relationships => [
 			("node__representative_period", ("electricity", "rp")),
 			("node__temporal_block", ("electricity", "year2017")),  # Add check for this
 		],
-		:parameter_values => [
+		:object_parameter_values => [
 			("representative_period", "rp", "representative_period_method", "representative_periods"),
 			("representative_period", "rp", "representative_periods", rps),
 			("representative_period", "rp", "representative_blocks", 40),
