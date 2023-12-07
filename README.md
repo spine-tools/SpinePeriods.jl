@@ -1,6 +1,6 @@
 # SpinePeriods.jl
 
-A package to run the optimisation based representative period models described in [this working paper](https://www.mech.kuleuven.be/en/tme/research/energy-systems-integration-modeling/pdf-publications/wp-esim2021-1).
+A package to run the optimisation-based representative period models described in [this working paper](https://www.mech.kuleuven.be/en/tme/research/energy-systems-integration-modeling/pdf-publications/wp-esim2021-1).
 
 ## Compatibility
 
