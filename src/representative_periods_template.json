@@ -10,8 +10,8 @@
         ["unit__representative_period", ["unit", "representative_period"]]
     ],
     "parameter_value_lists": [
-        ["representative_period_method", "representative_periods"],
-        ["representative_period_method", "representative_periods_ordering"],
+        ["representative_period_method_list", "representative_periods"],
+        ["representative_period_method_list", "representative_periods_ordering"],
         ["boolean_value_list", false],
         ["boolean_value_list", true]
     ],

@@ -72,6 +72,7 @@ Assuming you have a working SpineOpt database:
     - If `for rolling` is `true`:
         - The value of `model_start` for your model object will be set to the start of the first representative period selected.
         - The value of `roll_forward` will be set to an array of duration values, thus allowing SpineOpt to roll over the selected representative periods.
+        - Finally, if you selected the `representative_periods_ordering` method, then the value of the `representative_windows_mapping` parameter for your `model` object will be set to a `map` from window start to representative window start.
 
     In either case, the database will be ready to be used by SpineOpt.
 
