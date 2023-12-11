@@ -10,8 +10,8 @@ end
 
 function is_db_url(db_url::String)
     try
-        run_request(db_url, "get_db_url")
-        !isnothing(match(r".sqlite", db_url))
+        path=run_request(db_url, "get_db_url")        
+        !isnothing(match(r".sqlite", path))
     catch
         false
     end
