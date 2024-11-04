@@ -1,29 +1,26 @@
 {
-    "object_classes": [
+    "entity_classes": [
         "node",
         "representative_period",
-        "unit"
-    ],
-    "relationship_classes": [
+        "unit",
+ 
         ["node__representative_period", ["node", "representative_period"]],
         ["unit__node__representative_period", ["unit", "node", "representative_period"]],
         ["unit__representative_period", ["unit", "representative_period"]]
     ],
     "parameter_value_lists": [
         ["representative_period_method_list", "representative_periods"],
-        ["representative_period_method_list", "representative_periods_ordering"],
-        ["boolean_value_list", false],
-        ["boolean_value_list", true]
+        ["representative_period_method_list", "representative_periods_ordering"]
     ],
-    "object_parameters": [
+    "parameter_definitions": [
         ["representative_period", "error_tolerance", null, null],
         ["representative_period", "optimisation_gap", 0.01, null],
         ["representative_period", "representative_blocks", null, null],
         ["representative_period", "representative_periods", null, null],
+        ["representative_period", "max_timeslice_duration", null, null],
         ["representative_period", "representative_period_method", "representative_periods", "representative_period_method_list"],
-        ["representative_period", "for_rolling", false, "boolean_value_list"]
-    ],
-    "relationship_parameters": [
+        ["representative_period", "for_rolling", false, "boolean_value_list"],
+
         ["node__representative_period", "representative_period_weight", 1.0, null],
         ["unit__node__representative_period", "representative_period_weight", 1.0, null],
         ["unit__representative_period", "representative_period_weight", 1.0, null]

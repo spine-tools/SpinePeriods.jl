@@ -32,6 +32,7 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     else
         represented_tblocks = _represented_temporal_blocks()
         res = minimum(resolution(temporal_block=tb) for tb in represented_tblocks)
+        
         add_representative_period_temporal_blocks!(
             objects, object_parameter_values, window__static_slice, selected_windows, weight, res
         )
@@ -47,11 +48,10 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
     end
     object_parameters = unique((pval[1], pval[3]) for pval in object_parameter_values)
     d = Dict(
-        :object_groups => object_groups,
-        :objects => objects,
-        :relationships => relationships,
-        :object_parameters => object_parameters,
-        :object_parameter_values => object_parameter_values
+        :entities => vcat(objects, relationships),
+        :entity_groups => object_groups,
+        #:object_parameters => object_parameters,
+        :parameter_values => object_parameter_values
     )
     if !isempty(alternative)
         d[:alternatives] = [alternative]
@@ -110,14 +110,18 @@ function add_representative_period_temporal_blocks!(
     objects, object_parameter_values, window__static_slice, windows, weight, res
 )
     for w in windows
+        
+        
         tb_name = string("rp_", w)
         tb_start = split(string(first(window__static_slice[w]).name), "~>")[1]
+        tb_start = split(tb_start, "~")[1]
         tb_end = split(string(last(window__static_slice[w]).name), "~>")[2]
+
         wt = JuMP.value(weight[w])
         push!(objects, ("temporal_block", tb_name))
         push!(object_parameter_values, ("temporal_block", tb_name, "block_start", date_time_to_db(tb_start)))
         push!(object_parameter_values, ("temporal_block", tb_name, "block_end", date_time_to_db(tb_end)))
-        push!(object_parameter_values, ("temporal_block", tb_name, "resolution", unparse_db_value(res)))
+        push!(object_parameter_values, ("temporal_block", tb_name, "resolution", duration_to_db(res)))
         push!(object_parameter_values, ("temporal_block", tb_name, "weight", wt))
         @info "added temporal block $tb_name with start $tb_start, end $tb_end and weight $wt"
     end
@@ -185,7 +189,9 @@ function _window_mapping(m, window__static_slice)
         ss1 = window__static_slice[w1][1]
         ss2 = window__static_slice[w2][1]
         ss1_start = string(rstrip(split(string(ss1.name), "~>")[1]))
+        ss1_start = split(ss1_start, "~")[1]
         ss2_start = string(rstrip(split(string(ss2.name), "~>")[1]))
+        ss2_start = split(ss2_start, "~")[1]
         push!(window_pairs, [ss1_start, Dict("type" => "date_time", "data" => ss2_start)])
     end
     map_to_db(window_pairs)
@@ -205,7 +211,7 @@ function _representative_period_mapping(m, window__static_slice)
     for w1 in window()
         w2 = chron_map[w1]
         ss1 = window__static_slice[w1][1]
-        ss1_start = string(rstrip(split(string(ss1.name), "~>")[1]))
+        ss1_start, _ = slice_ends(ss1)
         ss2 = string("rp_", w2)
         push!(periods, [ss1_start, ss2])
     end
@@ -223,8 +229,16 @@ function add_representative_period_mapping!(m, object_parameter_values, window__
 end
 
 date_time_to_db(datetime_string) = Dict("type" => "date_time", "data" => datetime_string)
-
+duration_to_db(d::Period) = Dict("type" => "duration", "data" => string(d))
 map_to_db(map_array) = Dict("type" => "map", "index_type" => "date_time", "data" => map_array)
+
+function slice_ends(slice::Object)
+    sl_start = split(string(slice.name), "~")[1]
+    sl_end = split(string(slice.name), "~>")[2]
+    return sl_start, sl_end
+end
+
+
 
 function create_copy_db(url_in, url_out)
     input_data = run_request(url_in, "export_data")

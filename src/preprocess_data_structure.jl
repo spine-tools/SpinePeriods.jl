@@ -101,6 +101,7 @@ Generate the distribution for each time series as defined by:
 function generate_distributions(m::Model)
     rp = first(representative_period())
     n_periods = representative_periods(representative_period=rp)
+    # objects to represent rolling optimization windows
     window = ObjectClass(:window, [])
     static_slice = ObjectClass(:static_slice, [])
     @eval begin
@@ -126,27 +127,42 @@ function generate_distributions(m::Model)
         w = Object(Symbol(:W, i_win), :window)
         add_object!(window, w)
         window__static_slice[w] = []
-        for t in time_slice(m)
-            ss_name = Symbol(string(t))
-            add_object!(static_slice, Object(ss_name))
-            ss = static_slice(ss_name)
-            push!(window__static_slice[w], ss)
-            ss_ts[t] = ss
+        window_timeslices = [t for t in time_slice(m) 
+            if isnothing(max_timeslice_duration(representative_period=rp)) ||
+                t.end_[] - t.start[] <= max_timeslice_duration(representative_period=rp)
+                ]
+        for t in window_timeslices
+            if isnothing(max_timeslice_duration(representative_period=rp)) ||
+                t.end_[] - t.start[] <= max_timeslice_duration(representative_period=rp)
+                ss_name = Symbol(string(t))
+                add_object!(static_slice, Object(ss_name))
+                ss = static_slice(ss_name)
+                push!(window__static_slice[w], ss)
+                ss_ts[t] = ss
+            end
         end
         for r in resource()
             res_dist_window[r, w] = zeros(length(block()))
-            for t in time_slice(m)
+            for t in window_timeslices
                 ts_vals[r, ss_ts[t]] = resource_availability(resource=r, t=t)
-                (ts_vals[r, ss_ts[t]] == nothing || isnan(ts_vals[r, ss_ts[t]])) && (ts_vals[r, ss_ts[t]] = 0)
-                (ts_vals[r, ss_ts[t]] > ts_max[r]) && (ts_max[r] = ts_vals[r, ss_ts[t]])
-                (ts_vals[r, ss_ts[t]] < ts_min[r]) && (ts_min[r] = ts_vals[r, ss_ts[t]])
+                if (ts_vals[r, ss_ts[t]] == nothing || isnan(ts_vals[r, ss_ts[t]])) 
+                    ts_vals[r, ss_ts[t]] = 0
+                end
+                if ts_vals[r, ss_ts[t]] > ts_max[r] 
+                    ts_max[r] = ts_vals[r, ss_ts[t]]
+                elseif ts_vals[r, ss_ts[t]] < ts_min[r]
+                     ts_min[r] = ts_vals[r, ss_ts[t]]
+                end
                 # Also seperate values by resource, window and time slice
                 ts_vals_window[r, w, ss_ts[t]] = ts_vals[r, ss_ts[t]]
             end
         end
+        # if there are no more windows in rolling optimization, exit the loop
         roll_temporal_structure!(m, i_win) || break
         i_win += 1
     end
+
+    # for each resource parameter and window, create cumulative distribution
     window_time_interval = 100 / length(window__static_slice[first(window())])
     horizon_time_interval = window_time_interval / length(window())
     for r in resource()

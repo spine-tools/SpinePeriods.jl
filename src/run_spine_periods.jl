@@ -11,7 +11,7 @@ function run_spine_periods(
     url_in::String,
     out_file::String; 
     with_optimizer=optimizer_with_attributes(
-        CPLEX.Optimizer, "output_flag" => true, "mip_rel_gap" => 0.01, "time_limit" => 6.0
+        HiGHS.Optimizer, "output_flag" => true, "mip_rel_gap" => 0.01, "time_limit" => 60.0
     ),
     alternative=""
 )
