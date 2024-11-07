@@ -20,6 +20,8 @@
 module SpinePeriods
 
 using SpineOpt, SpineInterface, JuMP, Dates, URIs, JSON, UnPack, HiGHS
+using PyCall, LinearAlgebra, StatsBase
+
 
 # Resolve JuMP and SpineInterface `Parameter` and `parameter_value` conflicts.
 import SpineInterface: Parameter, parameter_value
@@ -30,6 +32,7 @@ include("representative_periods_model.jl")
 include("postprocess_results.jl")
 include("run_spine_periods_selection.jl")
 include("run_spine_periods_ordering.jl")
+include("run_spine_periods_clustering.jl")
 include("run_spine_periods.jl")
 
 export run_spine_periods

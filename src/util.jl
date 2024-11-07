@@ -8,6 +8,11 @@ function is_ordering_model()
     representative_period_method(representative_period=rp) == :representative_periods_ordering
 end
 
+function is_clustered_ordering_model()
+    rp = first(representative_period())
+    representative_period_method(representative_period=rp) == :representative_periods_clustering
+end
+
 function is_db_url(db_url::String)
     try
         actual_db_url = run_request(db_url, "get_db_url")        
@@ -31,3 +36,12 @@ function template()
     JSON.parsefile(joinpath(@__DIR__, "representative_periods_template.json"))
 end
 
+function slice_ends(slice::Object)
+    sl_start = split(string(slice.name), "~")[1]
+    sl_end = split(string(slice.name), "~>")[2]
+    return sl_start, sl_end
+end
+
+function window_number(w::Object)
+    return parse(Int, string(w)[2:end])
+end

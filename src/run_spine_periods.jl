@@ -22,6 +22,8 @@ function run_spine_periods(
         run_spine_periods_selection(url_in, out_file, with_optimizer=with_optimizer, alternative=alternative)
     elseif is_ordering_model()
         run_spine_periods_ordering(url_in, out_file, with_optimizer=with_optimizer, alternative=alternative)
+    elseif is_clustered_ordering_model()
+        run_spine_periods_clustering(url_in, out_file, alternative=alternative)
     else
         error("Please specify an optimisation method in the Spine database.")
     end

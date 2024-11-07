@@ -10,7 +10,8 @@
     ],
     "parameter_value_lists": [
         ["representative_period_method_list", "representative_periods"],
-        ["representative_period_method_list", "representative_periods_ordering"]
+        ["representative_period_method_list", "representative_periods_ordering"],
+        ["representative_period_method_list", "representative_periods_clustering"]
     ],
     "parameter_definitions": [
         ["representative_period", "error_tolerance", null, null],

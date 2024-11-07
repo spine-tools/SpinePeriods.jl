@@ -17,13 +17,31 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #############################################################################
 
-function postprocess_results!(m::Model, db_url, out_file, window__static_slice; alternative="")
-    @unpack selected, weight = m.ext[:spineopt].variables
+function postprocess_results!(m::Model, 
+                            db_url, out_file, 
+                            window__static_slice; 
+                            clustering_result = nothing,
+                            alternative="")
     objects = []
     relationships = []
     object_parameter_values = []
     object_groups = []
-    selected_windows = [w for w in window() if isapprox(JuMP.value(selected[w]), 1)]
+    
+    if !is_clustered_ordering_model()
+        @unpack selected, weight = m.ext[:spineopt].variables
+    end
+    
+    # extract selected windows
+    if is_clustered_ordering_model()
+        selected_windows =  [w for w in window() if window_number(w) in clustering_result[:win_selected]]
+        temp = countmap(clustering_result[:chronology])
+        weight = Dict(w => temp[i_win] for w in window(), i_win in keys(temp) 
+                        if window_number(w) == i_win
+                    )
+    else
+        selected_windows = [w for w in window() if isapprox(JuMP.value(selected[w]), 1)]
+    end
+    
     if for_rolling(representative_period=first(representative_period()))
         setup_rolling_representative_periods!(object_parameter_values, window__static_slice, selected_windows, weight)
         if is_ordering_model()
@@ -41,6 +59,9 @@ function postprocess_results!(m::Model, db_url, out_file, window__static_slice; 
         add_representative_period_relationships!(relationships, selected_windows, represented_tblocks)
         if is_ordering_model()
             add_representative_period_mapping!(m, object_parameter_values, window__static_slice, represented_tblocks)
+        elseif is_clustered_ordering_model()
+            add_representative_period_mapping!(m, object_parameter_values, 
+                window__static_slice, represented_tblocks, clustering_result = clustering_result)
         end
     end
     if !isempty(alternative)
@@ -110,8 +131,6 @@ function add_representative_period_temporal_blocks!(
     objects, object_parameter_values, window__static_slice, windows, weight, res
 )
     for w in windows
-        
-        
         tb_name = string("rp_", w)
         tb_start = split(string(first(window__static_slice[w]).name), "~>")[1]
         tb_start = split(tb_start, "~")[1]
@@ -133,6 +152,7 @@ function add_representative_period_group!(objects, object_groups, windows)
         tb_name = string("rp_", w)
         push!(object_groups, ("temporal_block", "all_representative_periods", tb_name))
     end
+
     @info "added temporal block group all_representative_periods"
 end
 
@@ -204,9 +224,16 @@ function add_window_mapping!(m, object_parameter_values, window__static_slice)
     @info "added representative_windows_mapping parameter value to model $m_name)"
 end
 
-function _representative_period_mapping(m, window__static_slice)
-    @unpack chronology = m.ext[:spineopt].variables
-    chron_map = Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
+function _representative_period_mapping(m, window__static_slice, clustering_result)
+    
+    if isnothing(clustering_result)
+        @unpack chronology = m.ext[:spineopt].variables
+        chron_map = Dict(w1 => w2 for w1 in window(), w2 in window() if isapprox(value(chronology[w1, w2]), 1))
+    else
+        chron_map = Dict(w1 => w2 for w1 in window(), w2 in window() if  
+            clustering_result[:chronology][window_number(w1)] == window_number(w2))
+    end
+    
     periods = []
     for w1 in window()
         w2 = chron_map[w1]
@@ -218,8 +245,9 @@ function _representative_period_mapping(m, window__static_slice)
     map_to_db(periods)
 end
 
-function add_representative_period_mapping!(m, object_parameter_values, window__static_slice, tblocks)
-    rp_mapping = _representative_period_mapping(m, window__static_slice)
+function add_representative_period_mapping!(m, object_parameter_values, window__static_slice, tblocks;
+            clustering_result = nothing)
+    rp_mapping = _representative_period_mapping(m, window__static_slice, clustering_result)
     append!(
         object_parameter_values,
         [("temporal_block", tb.name, "representative_periods_mapping", rp_mapping) for tb in tblocks]
@@ -232,11 +260,6 @@ date_time_to_db(datetime_string) = Dict("type" => "date_time", "data" => datetim
 duration_to_db(d::Period) = Dict("type" => "duration", "data" => string(d))
 map_to_db(map_array) = Dict("type" => "map", "index_type" => "date_time", "data" => map_array)
 
-function slice_ends(slice::Object)
-    sl_start = split(string(slice.name), "~")[1]
-    sl_end = split(string(slice.name), "~>")[2]
-    return sl_start, sl_end
-end
 
 
 

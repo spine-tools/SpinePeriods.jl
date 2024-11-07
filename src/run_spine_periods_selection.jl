@@ -14,7 +14,7 @@ function run_spine_periods_selection(
 )
     @info "Initializing model..."
     m = Model(with_optimizer)
-    m.ext[:spineopt] = SpineOptExt(first(model()))
+    m.ext[:spineopt] = SpineOptExt(first(model()), with_optimizer)
     @info "Generating SpinePeriods temporal structure..."
     generate_temporal_structure!(m)
     @info "Preprocessing data structure..."

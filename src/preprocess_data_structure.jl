@@ -132,14 +132,11 @@ function generate_distributions(m::Model)
                 t.end_[] - t.start[] <= max_timeslice_duration(representative_period=rp)
                 ]
         for t in window_timeslices
-            if isnothing(max_timeslice_duration(representative_period=rp)) ||
-                t.end_[] - t.start[] <= max_timeslice_duration(representative_period=rp)
-                ss_name = Symbol(string(t))
-                add_object!(static_slice, Object(ss_name))
-                ss = static_slice(ss_name)
-                push!(window__static_slice[w], ss)
-                ss_ts[t] = ss
-            end
+            ss_name = Symbol(string(t))
+            add_object!(static_slice, Object(ss_name))
+            ss = static_slice(ss_name)
+            push!(window__static_slice[w], ss)
+            ss_ts[t] = ss
         end
         for r in resource()
             res_dist_window[r, w] = zeros(length(block()))
@@ -186,7 +183,7 @@ function generate_distributions(m::Model)
         for r in resource() for w in window() for ss in window__static_slice[w]
     )
     resource__window__static_slice = RelationshipClass(
-        :resource_availabilty__window__static_slice,
+        :resource__window__static_slice,
         [:resource, :window, :ss],
         [(resource=r, window=w, ss=ss) for (r, w, ss) in keys(res_wdw_parameter_values)],
         res_wdw_parameter_values
