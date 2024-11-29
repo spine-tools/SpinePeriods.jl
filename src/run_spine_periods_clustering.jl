@@ -13,7 +13,7 @@ function run_spine_periods_clustering(
     with_optimizer=optimizer_with_attributes(HiGHS.Optimizer, "output_flag" => false),
     alternative=""
 )
-
+    # the representative periods selection object
     rp = first(representative_period())
 
     @info "Initializing model..."
@@ -53,7 +53,6 @@ end
 
     `obs_matrix`: the observation matrix X for clustering analysis
     where rows correspond to observations.
-    
 """
 function make_obs_matrix()
 
@@ -70,6 +69,7 @@ function make_obs_matrix()
                 a[wn, i_wss] = resource_availability_window_static_slice(resource=r, window=w1, ss=wss[i_wss])
             end
         end
+        # normalize values
         a = a / norm(a)
         if isnothing(obs_matrix)
             obs_matrix = a

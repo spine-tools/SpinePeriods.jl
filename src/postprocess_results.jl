@@ -36,8 +36,7 @@ function postprocess_results!(m::Model,
         selected_windows =  [w for w in window() if window_number(w) in clustering_result[:win_selected]]
         temp = countmap(clustering_result[:chronology])
         weight = Dict(w => temp[i_win] for w in window(), i_win in keys(temp) 
-                        if window_number(w) == i_win
-                    )
+                        if window_number(w) == i_win)
     else
         selected_windows = [w for w in window() if isapprox(JuMP.value(selected[w]), 1)]
     end
@@ -54,9 +53,11 @@ function postprocess_results!(m::Model,
         add_representative_period_temporal_blocks!(
             objects, object_parameter_values, window__static_slice, selected_windows, weight, res
         )
+        # adding group "all representative periods"
         add_representative_period_group!(objects, object_groups, selected_windows)
         fix_parameter_values!(object_parameter_values, represented_tblocks)
         add_representative_period_relationships!(relationships, selected_windows, represented_tblocks)
+        # parameter `representative_period_mapping` for existing temporal blocks
         if is_ordering_model()
             add_representative_period_mapping!(m, object_parameter_values, window__static_slice, represented_tblocks)
         elseif is_clustered_ordering_model()
@@ -67,7 +68,7 @@ function postprocess_results!(m::Model,
     if !isempty(alternative)
         object_parameter_values = [(pv..., alternative) for pv in object_parameter_values]
     end
-    object_parameters = unique((pval[1], pval[3]) for pval in object_parameter_values)
+    #object_parameters = unique((pval[1], pval[3]) for pval in object_parameter_values)
     d = Dict(
         :entities => vcat(objects, relationships),
         :entity_groups => object_groups,
