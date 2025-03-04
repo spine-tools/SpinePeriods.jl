@@ -42,6 +42,10 @@ function slice_ends(slice::Object)
     return sl_start, sl_end
 end
 
+function slice_start(slice::Object)
+    return split(string(slice.name), "~")[1]
+end
+
 function window_number(w::Object)
     return parse(Int, string(w)[2:end])
 end

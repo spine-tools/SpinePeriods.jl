@@ -55,8 +55,13 @@ function postprocess_results!(m::Model,
         )
         # adding group "all representative periods"
         add_representative_period_group!(objects, object_groups, selected_windows)
-        fix_parameter_values!(object_parameter_values, represented_tblocks)
+
+        # fix some model object parameters
+        fix_model_parameter_values!(object_parameter_values, represented_tblocks)
+
         add_representative_period_relationships!(relationships, selected_windows, represented_tblocks)
+        add_temporal_block_relationship_parameters!(selected_windows, relationships, object_parameter_values)
+
         # parameter `representative_period_mapping` for existing temporal blocks
         if is_ordering_model()
             add_representative_period_mapping!(m, object_parameter_values, window__static_slice, represented_tblocks)
@@ -72,7 +77,6 @@ function postprocess_results!(m::Model,
     d = Dict(
         :entities => vcat(objects, relationships),
         :entity_groups => object_groups,
-        #:object_parameters => object_parameters,
         :parameter_values => object_parameter_values
     )
     if !isempty(alternative)
@@ -92,8 +96,10 @@ end
 function setup_rolling_representative_periods!(object_parameter_values, window__static_slice, selected_windows, weight)
     instance = first(model())
     window_by_start = Dict(
-        DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) => w for w in selected_windows
-    )
+        #DateTime(split(string(first(window__static_slice[w]).name), "~>")[1]) => w for w in selected_windows
+        DateTime(slice_start(first(window__static_slice[w]))) => w for w in selected_windows
+        
+        )
     w_starts = sort!(collect(keys(window_by_start)))
     rf = [w_starts[i] - w_starts[i - 1] for i in 2:length(w_starts)]
     ww = [JuMP.value(weight[window_by_start[start]]) for start in w_starts]
@@ -157,7 +163,21 @@ function add_representative_period_group!(objects, object_groups, windows)
     @info "added temporal block group all_representative_periods"
 end
 
-function fix_parameter_values!(object_parameter_values, tblocks)
+function add_temporal_block_relationship_parameters!(windows, relationships, object_parameter_values)
+    
+    for w in windows
+        tb_name = string("rp_", w)
+        for n in indices(has_state) 
+            if has_state(node = n) == true
+                push!(relationships, ("node__temporal_block", (n.name, tb_name)))
+                push!(object_parameter_values,  ("node__temporal_block", (n.name, tb_name), "cyclic_condition", true))
+                @info "added cyclic condition to temporal block $tb_name with node $(n.name)."
+            end
+        end
+    end
+end
+
+function fix_model_parameter_values!(object_parameter_values, tblocks)
     instance = first(model())
     last_window_start = model_start(model=instance)
     i = 1
@@ -184,6 +204,9 @@ function add_representative_period_relationships!(relationships, windows, tblock
     default_tblocks = model__default_temporal_block(model=first(model()))
     add_to_default = any(tb in default_tblocks for tb in tblocks)
     model_name = first(model()).name
+
+    # notice that here node__temporal_block() does not include the model default temporal block
+
     for w in windows
         tb_name = string("rp_", w)
         if add_to_default
