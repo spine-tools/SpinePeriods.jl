@@ -175,6 +175,7 @@ function generate_distributions(m::Model)
             end
         end
     end
+ 
     # Create relationship classes
     # Create resource window static slice relationship class
     # Allows indexing resource values by window and time slice
@@ -188,6 +189,7 @@ function generate_distributions(m::Model)
         [(resource=r, window=w, ss=ss) for (r, w, ss) in keys(res_wdw_parameter_values)],
         res_wdw_parameter_values
     )
+
     # Define resource__block relationship class
     res_blk_parameter_values = Dict(
         (r, b) => Dict(
