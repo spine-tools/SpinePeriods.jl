@@ -83,7 +83,17 @@ function generate_resources()
         )
         for (u, n) in unit__node__representative_period(representative_period=rp)
     )
-    pvals = merge(u_pvals, n_pvals, u_n_pvals)
+    c_n_pvals = Dict(
+        Object(Symbol(c.name, :__, n.name), :resource) => Dict(
+            :resource_availability => parameter_value(connection_flow_cost(connection=c, node=n)),
+            :representative_period_weight => parameter_value(
+                representative_period_weight(connection=c, node=n, representative_period=rp, _default=1)
+            ),
+        )
+        for (c, n) in connection__node__representative_period(representative_period=rp)
+    )
+   
+    pvals = merge(u_pvals, n_pvals, u_n_pvals, c_n_pvals)
     resource = ObjectClass(:resource, collect(keys(pvals)), pvals)
     resource_availability = Parameter(:resource_availability, [resource])
     # FIXME: We need a SpineInterface function to add the resource_availability parameter to the resource object class
@@ -158,6 +168,8 @@ function generate_distributions(m::Model)
         roll_temporal_structure!(m, i_win) || break
         i_win += 1
     end
+
+    
 
     # for each resource parameter and window, create cumulative distribution
     window_time_interval = 100 / length(window__static_slice[first(window())])
