@@ -164,14 +164,15 @@ function add_representative_period_group!(objects, object_groups, windows)
 end
 
 function add_temporal_block_relationship_parameters!(windows, relationships, object_parameter_values)
-    
-    for w in windows
-        tb_name = string("rp_", w)
-        for n in indices(has_state) 
-            if has_state(node = n) == true
-                push!(relationships, ("node__temporal_block", (n.name, tb_name)))
-                push!(object_parameter_values,  ("node__temporal_block", (n.name, tb_name), "cyclic_condition", true))
-                @info "added cyclic condition to temporal block $tb_name with node $(n.name)."
+    if all_cyclic_temporal_blocks(representative_period=first(representative_period()))
+        for w in windows
+            tb_name = string("rp_", w)
+            for n in indices(has_state) 
+                if has_state(node = n) == true
+                    push!(relationships, ("node__temporal_block", (n.name, tb_name)))
+                    push!(object_parameter_values,  ("node__temporal_block", (n.name, tb_name), "cyclic_condition", true))
+                    @info "added cyclic condition to temporal block $tb_name with node $(n.name)."
+                end
             end
         end
     end

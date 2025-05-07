@@ -6,6 +6,7 @@
  
         ["node__representative_period", ["node", "representative_period"]],
         ["unit__node__representative_period", ["unit", "node", "representative_period"]],
+        ["connection__node__representative_period", ["connection", "node", "representative_period"]],
         ["unit__representative_period", ["unit", "representative_period"]]
     ],
     "parameter_value_lists": [
@@ -21,9 +22,10 @@
         ["representative_period", "max_timeslice_duration", null, null],
         ["representative_period", "representative_period_method", "representative_periods", "representative_period_method_list"],
         ["representative_period", "for_rolling", false, "boolean_value_list"],
-
+        ["representative_period", "all_cyclic_temporal_blocks", true, "boolean_value_list"],
         ["node__representative_period", "representative_period_weight", 1.0, null],
         ["unit__node__representative_period", "representative_period_weight", 1.0, null],
+        ["connection__node__representative_period", "representative_period_weight", 1.0, null],
         ["unit__representative_period", "representative_period_weight", 1.0, null]
     ]
 }
