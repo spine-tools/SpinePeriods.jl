@@ -11,7 +11,8 @@ function run_spine_periods_clustering(
     url_in::String,
     out_file::String;
     with_optimizer=optimizer_with_attributes(HiGHS.Optimizer, "output_flag" => false),
-    alternative=""
+    alternative="",
+    library = "julia"
 )
     # the representative periods selection object
     rp = first(representative_period())
@@ -24,6 +25,7 @@ function run_spine_periods_clustering(
     @info "Preprocessing data structure..."
     window__static_slice = preprocess_data_structure(m)
     
+    # create the observation matrix with observations as row vectors
     obs_matrix = make_obs_matrix()
     println(size(obs_matrix))
 
@@ -34,9 +36,17 @@ function run_spine_periods_clustering(
     
     # call clustering function, correct zero-based indices
     cl_result = Dict()
-    cl_result[:chronology], cl_result[:win_selected] = 
-        clustering.kmedoids_clustering(obs_matrix, representative_periods(representative_period=rp))
-    cl_result[:chronology] = cl_result[:win_selected][cl_result[:chronology] ]
+    if library == "julia"
+        dist_matrix = pairwise(Euclidean(), obs_matrix')
+        result = kmedoids(dist_matrix, representative_periods(representative_period=rp))
+        cl_result[:win_selected] = result.medoids
+        cl_result[:chronology] = cl_result[:win_selected][result.assignments ]
+    else
+        #using scikit-learn-extra
+        cl_result[:chronology], cl_result[:win_selected] = 
+            clustering.kmedoids_clustering(obs_matrix, representative_periods(representative_period=rp))
+        cl_result[:chronology] = cl_result[:win_selected][cl_result[:chronology] ]
+    end
     @info "Clustering done."
 
     postprocess_results!(m, url_in, out_file, window__static_slice; 

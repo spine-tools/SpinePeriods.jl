@@ -21,7 +21,7 @@ module SpinePeriods
 
 using SpineOpt, SpineInterface, JuMP, Dates, URIs, JSON, UnPack, HiGHS
 using PyCall, LinearAlgebra, StatsBase
-
+using Clustering, Distances
 
 # Resolve JuMP and SpineInterface `Parameter` and `parameter_value` conflicts.
 import SpineInterface: Parameter, parameter_value
