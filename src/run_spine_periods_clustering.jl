@@ -29,11 +29,6 @@ function run_spine_periods_clustering(
     obs_matrix = make_obs_matrix()
     println(size(obs_matrix))
 
-    # import the Python module for clustering
-    scriptdir = @__DIR__
-    pushfirst!(PyVector(pyimport("sys")."path"), scriptdir)
-    clustering = pyimport("cluster")
-    
     # call clustering function, correct zero-based indices
     cl_result = Dict()
     if library == "julia"
@@ -42,7 +37,12 @@ function run_spine_periods_clustering(
         cl_result[:win_selected] = result.medoids
         cl_result[:chronology] = cl_result[:win_selected][result.assignments ]
     else
-        #using scikit-learn-extra
+        # using scikit-learn-extra
+        # import the Python module for clustering
+        # must have sklearn_extra library in the python environment
+        scriptdir = @__DIR__
+        pushfirst!(PyVector(pyimport("sys")."path"), scriptdir)
+        clustering = pyimport("cluster")
         cl_result[:chronology], cl_result[:win_selected] = 
             clustering.kmedoids_clustering(obs_matrix, representative_periods(representative_period=rp))
         cl_result[:chronology] = cl_result[:win_selected][cl_result[:chronology] ]
